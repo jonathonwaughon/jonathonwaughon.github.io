@@ -135,7 +135,14 @@
     }
 
     /* ---------- Main content ---------- */
-    main { margin-left: var(--sidebar-w); }
+    main { margin-left: var(--sidebar-w); position: relative; z-index: 1; }
+
+    /* underwater background (drawn by the ocean script at the bottom) */
+    #ocean {
+      position: fixed; inset: 0; z-index: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
 
     /* ---------- Homepage hero ---------- */
     .hero { padding: 90px 0 70px; }
@@ -168,7 +175,8 @@
       font-size: clamp(20px, 2.6vw, 26px); font-weight: 600;
       margin-bottom: 16px; min-height: 1.6em;
     }
-    .typed { color: var(--green); }
+    .verb { color: #7dd3fc; }        /* light blue verb */
+    .typed { color: var(--green); }  /* the item keeps the original green */
     .cursor { color: var(--blue); font-weight: 400; margin-left: 2px; animation: blink 1s steps(1) infinite; }
     .intro { color: var(--muted); font-size: 17px; max-width: 480px; margin-bottom: 28px; }
     .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 26px; }
@@ -470,6 +478,8 @@
 </head>
 <body>
 
+  <canvas id="ocean" aria-hidden="true"></canvas>
+
   <!-- Mobile-only top bar -->
   <div class="topbar">
     <button class="menu-btn" id="menuBtn" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
@@ -491,7 +501,7 @@
           <span class="status anim" style="--o:0"><span class="dot"></span>Open to opportunities</span>
           <h1 class="anim" style="--o:1">Hi, I'm <span>JR Waughon</span></h1>
           <p class="tagline anim" style="--o:2">
-            I build <span class="typed" id="typed">web apps</span><span class="cursor" aria-hidden="true">|</span>
+            I <span class="verb" id="verb">build</span> <span class="typed" id="typed">web apps</span><span class="cursor" aria-hidden="true">|</span>
           </p>
           <p class="intro anim" style="--o:3">
             I'm pretty awesome. Welcome to my corner of the internet: here's who I am,
@@ -873,8 +883,9 @@
        ========================================================= */
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-    // "I build ___" rotates through these
-    const WORDS = ["web apps", "games", "tools", "things that look cool"];
+    // "I ___ ___" comes from content/home.json → what_i_do.
+    // This is only used if that file can't be loaded (e.g. opening index.html straight from disk).
+    const FALLBACK_WHAT_I_DO = { build: ["web apps", "games", "tools", "things that look cool"] };
 
     // the code card types this out; each piece is [color, text]
     // colors: c=comment k=keyword v=variable x=key p=punctuation s=string n=number
@@ -888,19 +899,80 @@
       ["p", "};"],
     ];
 
-    async function rotateWords() {
-      const el = document.getElementById("typed");
-      if (!el || reduceMotion.matches) return;
-      let w = 0;
-      await sleep(2600);
+    async function loadHomeConfig() {
+      try {
+        const res = await fetch("content/home.json", { cache: "no-cache" });
+        if (!res.ok) throw new Error(res.status);
+        return await res.json();
+      } catch {
+        return null;
+      }
+    }
+
+    const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    const shuffled = (arr) => {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    };
+    async function typeInto(el, text, speed = 75) {
+      for (let i = 1; i <= text.length; i++) { el.textContent = text.slice(0, i); await sleep(speed); }
+    }
+    async function eraseFrom(el, speed = 40) {
+      for (let i = el.textContent.length - 1; i >= 0; i--) { el.textContent = el.textContent.slice(0, i); await sleep(speed); }
+    }
+
+    // Pick a random category (the verb), cycle 2–4 random items from it,
+    // then switch to a different category. Repeat forever.
+    async function rotateWhatIDo() {
+      const verbEl = document.getElementById("verb");
+      const itemEl = document.getElementById("typed");
+      if (!verbEl || !itemEl) return;
+
+      const config = await loadHomeConfig();
+      const toCategories = (obj) => Object.entries(obj || {})
+        .filter(([, items]) => Array.isArray(items) && items.length) // skip empty lists
+        .map(([verb, items]) => [verb.replace(/_/g, " "), items]);   // "work_on" → "work on"
+      let categories = toCategories(config && config.what_i_do);
+      if (!categories.length) categories = toCategories(FALLBACK_WHAT_I_DO);
+
+      let lastVerb = null;
+      let first = true;
       while (true) {
-        const word = WORDS[w];
-        for (let i = word.length; i >= 0; i--) { el.textContent = word.slice(0, i); await sleep(40); }
-        w = (w + 1) % WORDS.length;
-        await sleep(250);
-        const next = WORDS[w];
-        for (let i = 1; i <= next.length; i++) { el.textContent = next.slice(0, i); await sleep(75); }
-        await sleep(2200);
+        const options = categories.length > 1 ? categories.filter(([v]) => v !== lastVerb) : categories;
+        const [verb, items] = pickRandom(options);
+        const count = Math.min(items.length, 2 + Math.floor(Math.random() * 3)); // 2, 3 or 4
+        const sequence = shuffled(items).slice(0, count);
+
+        if (first) {
+          // show the first pick instantly, no typing
+          verbEl.textContent = verb;
+          itemEl.textContent = sequence[0];
+          first = false;
+          if (reduceMotion.matches) return; // reduced motion: one static line
+          await sleep(2600);
+        } else {
+          await eraseFrom(itemEl);
+          if (verb !== verbEl.textContent) {
+            await eraseFrom(verbEl, 55);
+            await sleep(150);
+            await typeInto(verbEl, verb, 85);
+          }
+          await sleep(200);
+          await typeInto(itemEl, sequence[0]);
+          await sleep(2200);
+        }
+
+        for (const item of sequence.slice(1)) {
+          await eraseFrom(itemEl);
+          await sleep(250);
+          await typeInto(itemEl, item);
+          await sleep(2200);
+        }
+        lastVerb = verb;
       }
     }
 
@@ -931,8 +1003,280 @@
       }
     }
 
-    rotateWords();
+    rotateWhatIDo();
     typeCode();
+  </script>
+
+  <script>
+    /* =========================================================
+       OCEAN BACKGROUND: flowing water + cute jellyfish.
+       Tweak the settings below to change the vibe.
+       ========================================================= */
+    (() => {
+      const SETTINGS = {
+        jellyDensity: 110000,   // px² of screen per jellyfish (smaller = more jellies)
+        maxJellies: 11,
+        sizeRange: [12, 24],    // bell radius in px
+        current: 0.004,         // how hard the water pushes everything to the right
+        colors: [[56, 189, 248], [52, 211, 153], [167, 139, 250], [244, 114, 182]],
+      };
+
+      const canvas = document.getElementById("ocean");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const rand = (a, b) => a + Math.random() * (b - a);
+      const TAU = Math.PI * 2;
+
+      let W = 0, H = 0;
+      let jellies = [], specks = [], rays = [];
+      const mouse = { x: -9999, y: -9999 };
+
+      function makeJelly(anywhere) {
+        const size = rand(...SETTINGS.sizeRange);
+        return {
+          x: rand(0, W), y: anywhere ? rand(0, H) : H + size * 4,
+          vx: 0, vy: 0, angle: 0, size,
+          color: SETTINGS.colors[Math.floor(Math.random() * SETTINGS.colors.length)],
+          phase: rand(0, TAU),
+          pulseSpeed: rand(1.4, 2.2),
+          seed: rand(0, 1000),
+          alpha: rand(0.45, 0.75),
+          blinkEvery: rand(3, 7),
+        };
+      }
+
+      function resize() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = window.innerWidth; H = window.innerHeight;
+        canvas.width = W * dpr; canvas.height = H * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const want = Math.max(4, Math.min(SETTINGS.maxJellies, Math.round((W * H) / SETTINGS.jellyDensity)));
+        while (jellies.length < want) jellies.push(makeJelly(true));
+        jellies.length = want;
+
+        specks = Array.from({ length: Math.round((W * H) / 14000) }, () => ({
+          x: rand(0, W), y: rand(0, H), r: rand(0.5, 1.8), s: rand(0.15, 0.6), a: rand(0.12, 0.45), bob: rand(0, TAU),
+        }));
+        if (!rays.length) {
+          rays = Array.from({ length: 5 }, () => ({ x: rand(0.05, 0.95), w: rand(60, 160), sway: rand(0, TAU), a: rand(0.03, 0.06) }));
+        }
+      }
+
+      /* ---------- water ---------- */
+      function drawWater(t, f) {
+        ctx.clearRect(0, 0, W, H);
+
+        // lighter near the "surface", fading into the deep
+        const depth = ctx.createLinearGradient(0, 0, 0, H);
+        depth.addColorStop(0, "rgba(20, 60, 100, 0.5)");
+        depth.addColorStop(0.55, "rgba(11, 30, 55, 0.2)");
+        depth.addColorStop(1, "rgba(11, 17, 32, 0)");
+        ctx.fillStyle = depth;
+        ctx.fillRect(0, 0, W, H);
+
+        // light rays shining down from the surface
+        for (const r of rays) {
+          const cx = r.x * W + Math.sin(t * 0.25 + r.sway) * 60;
+          const g = ctx.createLinearGradient(0, 0, 0, H * 0.85);
+          g.addColorStop(0, `rgba(125, 211, 252, ${r.a})`);
+          g.addColorStop(1, "rgba(125, 211, 252, 0)");
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.moveTo(cx - r.w * 0.3, 0);
+          ctx.lineTo(cx + r.w * 0.3, 0);
+          ctx.lineTo(cx + r.w * 1.4 + 80, H * 0.85);
+          ctx.lineTo(cx - r.w * 1.4 + 80, H * 0.85);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        // flowing currents: soft wide bands with a thin glint, sliding sideways
+        for (let i = 0; i < 6; i++) {
+          const y0 = H * (0.12 + i * 0.16);
+          const amp = 14 + i * 4, k = 0.004 + i * 0.0007, speed = 0.35 + i * 0.08;
+          ctx.beginPath();
+          for (let x = -20; x <= W + 20; x += 16) {
+            const y = y0 + Math.sin(x * k - t * speed + i) * amp + Math.sin(x * k * 2.3 + t * speed * 0.6) * amp * 0.35;
+            if (x === -20) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.strokeStyle = "rgba(56, 189, 248, 0.035)";
+          ctx.lineWidth = 40 + i * 6;
+          ctx.stroke();
+          ctx.strokeStyle = "rgba(125, 211, 252, 0.07)";
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+
+        // little specks drifting with the current
+        ctx.fillStyle = "rgb(186, 230, 253)";
+        for (const p of specks) {
+          if (f) {
+            p.x += p.s * f;
+            p.y += (Math.sin(t + p.bob) * 0.15 - p.s * 0.15) * f;
+            if (p.x > W + 5) { p.x = -5; p.y = rand(0, H); }
+            if (p.y < -5) p.y = H + 5;
+          }
+          ctx.globalAlpha = p.a;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, TAU);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      /* ---------- jellyfish ---------- */
+      function updateJelly(j, t, f) {
+        j.phase += (j.pulseSpeed * f) / 60;
+        const thrust = Math.max(0, Math.sin(j.phase)) ** 2;     // a squish = a push
+        const heading = Math.sin(t * 0.15 + j.seed) * 0.35;     // lazy wandering, mostly upward
+        j.vx += (Math.sin(heading) * thrust * 0.05 + SETTINGS.current) * f;
+        j.vy += (-Math.cos(heading) * thrust * 0.06 + 0.006) * f; // drift down a little between pulses
+
+        // shy: swim away from the cursor
+        const dx = j.x - mouse.x, dy = j.y - mouse.y, d2 = dx * dx + dy * dy;
+        if (d2 < 140 * 140) {
+          const d = Math.sqrt(d2) || 1;
+          j.vx += (dx / d) * 0.08 * f;
+          j.vy += (dy / d) * 0.08 * f;
+        }
+
+        const drag = Math.pow(0.97, f);
+        j.vx *= drag; j.vy *= drag;
+        j.x += j.vx * f; j.y += j.vy * f;
+        j.angle = heading + j.vx * 0.15;
+
+        const m = j.size * 5;
+        if (j.y < -m) Object.assign(j, makeJelly(false)); // left through the top: respawn below
+        if (j.y > H + m) j.y = H + m;
+        if (j.x > W + m) j.x = -m;
+        if (j.x < -m) j.x = W + m;
+      }
+
+      function drawJelly(j, t) {
+        const [r, g, b] = j.color;
+        const s = j.size;
+        const pulse = Math.max(0, Math.sin(j.phase));
+        const rx = s * (1 + pulse * 0.12);
+        const ry = s * 0.85 * (1 - pulse * 0.14);
+
+        ctx.save();
+        ctx.translate(j.x, j.y);
+        ctx.rotate(j.angle);
+        ctx.globalAlpha = j.alpha;
+
+        // glow
+        const glow = ctx.createRadialGradient(0, s * 0.3, 0, 0, s * 0.3, s * 2.6);
+        glow.addColorStop(0, `rgba(${r},${g},${b},0.25)`);
+        glow.addColorStop(1, `rgba(${r},${g},${b},0)`);
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(0, s * 0.3, s * 2.6, 0, TAU);
+        ctx.fill();
+
+        // wiggly tentacles
+        ctx.lineCap = "round";
+        ctx.strokeStyle = `rgba(${r},${g},${b},0.55)`;
+        ctx.lineWidth = 1.4;
+        for (let k = 0; k < 5; k++) {
+          const bx = (k / 4 - 0.5) * rx * 1.5;
+          const len = s * (2 + (k % 2) * 0.6) * (1 + pulse * 0.15);
+          ctx.beginPath();
+          ctx.moveTo(bx, 0);
+          for (let i = 1; i <= 8; i++) {
+            const p = i / 8;
+            ctx.lineTo(bx * (1 - p * 0.3) + Math.sin(t * 2.2 + k * 1.3 + p * 4) * s * 0.22 * p, p * len);
+          }
+          ctx.stroke();
+        }
+        // two thicker frilly arms in the middle
+        ctx.strokeStyle = `rgba(${r},${g},${b},0.7)`;
+        ctx.lineWidth = 3;
+        for (const side of [-1, 1]) {
+          ctx.beginPath();
+          ctx.moveTo(side * rx * 0.15, 0);
+          for (let i = 1; i <= 8; i++) {
+            const p = i / 8;
+            ctx.lineTo(side * rx * 0.15 + Math.sin(t * 1.6 + side + p * 5) * s * 0.18, p * s * 1.4);
+          }
+          ctx.stroke();
+        }
+
+        // bell: a dome with a scalloped bottom edge
+        const lite = (c) => Math.min(c + 80, 255);
+        const bell = ctx.createLinearGradient(0, -ry, 0, ry * 0.2);
+        bell.addColorStop(0, `rgba(${lite(r)},${lite(g)},${lite(b)},0.95)`);
+        bell.addColorStop(1, `rgba(${r},${g},${b},0.75)`);
+        ctx.fillStyle = bell;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, rx, ry, 0, Math.PI, 0);
+        const scallops = 4, step = (2 * rx) / scallops;
+        for (let i = 0; i < scallops; i++) {
+          const x0 = rx - i * step, x1 = x0 - step;
+          ctx.quadraticCurveTo((x0 + x1) / 2, ry * 0.28, x1, 0);
+        }
+        ctx.closePath();
+        ctx.fill();
+
+        // shiny highlight
+        ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
+        ctx.beginPath();
+        ctx.ellipse(-rx * 0.4, -ry * 0.55, rx * 0.22, ry * 0.13, -0.5, 0, TAU);
+        ctx.fill();
+
+        // cute face :)
+        const ey = -ry * 0.25, ex = rx * 0.32, er = Math.max(1.4, s * 0.09);
+        const blinking = (t + j.seed) % j.blinkEvery < 0.15;
+        ctx.fillStyle = "#0b1120";
+        if (blinking) {
+          ctx.fillRect(-ex - er, ey - 0.6, er * 2, 1.2);
+          ctx.fillRect(ex - er, ey - 0.6, er * 2, 1.2);
+        } else {
+          for (const x of [-ex, ex]) { ctx.beginPath(); ctx.arc(x, ey, er, 0, TAU); ctx.fill(); }
+          ctx.fillStyle = "#fff";
+          for (const x of [-ex, ex]) { ctx.beginPath(); ctx.arc(x + er * 0.35, ey - er * 0.35, er * 0.4, 0, TAU); ctx.fill(); }
+        }
+        ctx.fillStyle = "rgba(244, 114, 182, 0.55)"; // blush
+        for (const sd of [-1, 1]) {
+          ctx.beginPath();
+          ctx.ellipse(sd * ex * 1.45, ey + er * 1.8, er * 1.1, er * 0.6, 0, 0, TAU);
+          ctx.fill();
+        }
+        ctx.strokeStyle = "#0b1120"; // smile
+        ctx.lineWidth = Math.max(1, s * 0.06);
+        ctx.beginPath();
+        ctx.arc(0, ey + er * 1.2, er * 0.9, 0.15 * Math.PI, 0.85 * Math.PI);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      /* ---------- loop ---------- */
+      function render(t, f) {
+        drawWater(t, f);
+        for (const j of jellies) {
+          if (f) updateJelly(j, t, f);
+          drawJelly(j, t);
+        }
+      }
+
+      let last = performance.now();
+      function frame(now) {
+        const f = Math.min((now - last) / 16.67, 3); // frame-rate independent, capped after tab switches
+        last = now;
+        render(now / 1000, f);
+        requestAnimationFrame(frame); // browsers pause this automatically in hidden tabs
+      }
+
+      window.addEventListener("resize", () => { resize(); if (still) render(0, 0); });
+      window.addEventListener("pointermove", (e) => { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
+      document.addEventListener("pointerleave", () => { mouse.x = mouse.y = -9999; });
+
+      resize();
+      if (still) render(0, 0);           // reduced motion: one calm, static scene
+      else requestAnimationFrame(frame);
+    })();
   </script>
 </body>
 </html>

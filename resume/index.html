@@ -4,11 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Resume | JR Waughon</title>
+  <script>document.documentElement.classList.add("js");</script>
   <style>
     :root {
-      /* site colors (match the homepage) */
       --bg: #0b1120;
       --surface: #111a2e;
+      --surface-2: #16213a;
       --border: #1e2a44;
       --text: #e2e8f0;
       --muted: #94a3b8;
@@ -16,23 +17,24 @@
       --green: #34d399;
       --gradient: linear-gradient(90deg, var(--blue), var(--green));
       --ease-out: cubic-bezier(.2, .8, .2, 1);
-
-      /* the resume "paper" */
-      --paper: #ffffff;
-      --ink: #0f172a;
-      --ink-soft: #475569;
-      --rule: #e2e8f0;
-      --accent: #0284c7;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
       background: var(--bg);
       color: var(--text);
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.55;
+      line-height: 1.6;
     }
-    a { color: inherit; text-decoration: none; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { color: var(--green); }
+    button { font: inherit; color: inherit; }
+    .grad {
+      background: var(--gradient);
+      -webkit-background-clip: text; background-clip: text;
+      color: transparent;
+    }
 
     /* ---------- Toolbar ---------- */
     .toolbar {
@@ -42,9 +44,8 @@
       border-bottom: 1px solid var(--border);
     }
     .toolbar-inner {
-      max-width: 880px; margin: 0 auto; padding: 0 16px;
-      height: 60px;
-      display: flex; align-items: center; gap: 12px;
+      max-width: 960px; margin: 0 auto; padding: 0 16px;
+      height: 60px; display: flex; align-items: center; gap: 12px;
     }
     .back {
       display: inline-flex; align-items: center; gap: 6px;
@@ -55,140 +56,338 @@
     .back:hover { color: var(--text); background: rgba(56, 189, 248, 0.08); }
     .back svg { transition: translate .2s var(--ease-out); }
     .back:hover svg { translate: -3px 0; }
-    .toolbar .logo {
-      font-weight: 800; font-size: 18px;
-      background: var(--gradient);
-      -webkit-background-clip: text; background-clip: text;
-      color: transparent;
-    }
-    .print-btn {
-      margin-left: auto;
+    .logo { font-weight: 800; font-size: 18px; }
+
+    .btn {
       display: inline-flex; align-items: center; gap: 8px;
-      padding: 9px 16px; border: 0; border-radius: 8px;
-      background: var(--gradient); color: var(--bg);
-      font: 600 14px/1 inherit; font-family: inherit;
-      cursor: pointer;
-      transition: transform .15s, filter .2s, box-shadow .2s;
+      padding: 10px 16px; border-radius: 8px;
+      font-weight: 600; font-size: 14px; cursor: pointer;
+      border: 1px solid transparent;
+      transition: transform .15s, filter .2s, box-shadow .2s, background .2s, border-color .2s;
     }
-    .print-btn:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 8px 24px -10px rgba(56, 189, 248, 0.6); }
-    .print-btn:active { transform: scale(.95); }
+    .btn:hover { transform: translateY(-2px); }
+    .btn:active { transform: scale(.95); transition-duration: .05s; }
+    .btn-primary { background: var(--gradient); color: var(--bg); border: 0; }
+    .btn-primary:hover { color: var(--bg); filter: brightness(1.1); box-shadow: 0 8px 24px -10px rgba(56, 189, 248, 0.6); }
+    .btn-ghost { background: transparent; border-color: var(--border); color: var(--text); }
+    .btn-ghost:hover { border-color: var(--blue); color: var(--text); }
+    .toolbar .btn { margin-left: auto; }
 
-    /* ---------- Paper ---------- */
-    main { padding: 40px 16px 80px; }
-    .paper {
-      max-width: 850px; margin: 0 auto;
-      background: var(--paper); color: var(--ink);
-      border-radius: 6px;
-      box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.8);
-      overflow: hidden;
-      animation: rise .8s var(--ease-out) .1s backwards;
-    }
-    .paper::before { content: ""; display: block; height: 6px; background: var(--gradient); }
+    /* ---------- Layout ---------- */
+    .wrap { max-width: 960px; margin: 0 auto; padding: 40px 16px 80px; }
+    section { margin-bottom: 64px; }
+    .section-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+    .section-head h2 { font-size: 26px; }
+    .section-head small { color: var(--muted); font-size: 14px; }
 
-    .resume-header {
-      padding: 40px 48px 28px;
-      border-bottom: 1px solid var(--rule);
-    }
-    .resume-header h1 { font-size: 36px; line-height: 1.1; letter-spacing: -0.02em; }
-    .resume-header .role { color: var(--accent); font-weight: 600; font-size: 17px; margin-top: 4px; }
-    .contact {
-      display: flex; flex-wrap: wrap; gap: 6px 20px;
-      margin-top: 14px; list-style: none;
-      font-size: 14px; color: var(--ink-soft);
-    }
-    .contact li { display: inline-flex; align-items: center; gap: 6px; }
-    .contact a:hover { color: var(--accent); }
-    .contact svg { flex: none; color: var(--accent); }
-
-    .resume-body {
-      display: grid;
-      grid-template-columns: 1fr 230px;
-    }
-    .col-main { padding: 28px 40px 40px 48px; }
-    .col-side {
-      padding: 28px 32px 40px 28px;
-      background: #f8fafc;
-      border-left: 1px solid var(--rule);
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
     }
 
-    .block { margin-bottom: 28px; }
-    .block:last-child { margin-bottom: 0; }
-    .block > h2 {
-      font-size: 12px; font-weight: 700;
-      letter-spacing: .14em; text-transform: uppercase;
-      color: var(--accent);
-      padding-bottom: 6px; margin-bottom: 14px;
-      border-bottom: 2px solid var(--rule);
+    /* ---------- Intro ---------- */
+    .intro {
+      position: relative; overflow: hidden; isolation: isolate;
+      padding: 36px;
+      display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center;
     }
-    .summary { color: var(--ink-soft); font-size: 15px; }
-
-    .entry { margin-bottom: 18px; }
-    .entry:last-child { margin-bottom: 0; }
-    .entry-head {
-      display: flex; justify-content: space-between; align-items: baseline;
-      gap: 4px 12px; flex-wrap: wrap;
+    .intro::before {
+      content: ""; position: absolute; inset: -40%; z-index: -1;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(56, 189, 248, 0.14), transparent 30%),
+        radial-gradient(circle at 80% 70%, rgba(52, 211, 153, 0.12), transparent 30%);
+      animation: drift 14s ease-in-out infinite alternate;
     }
-    .entry-head h3 { font-size: 16px; }
-    .entry-head .date { font-size: 13px; color: var(--ink-soft); white-space: nowrap; }
-    .entry .where { font-size: 14px; color: var(--accent); font-weight: 500; }
-    .entry ul { margin: 6px 0 0 18px; font-size: 14px; color: var(--ink-soft); }
-    .entry li { margin-bottom: 3px; }
-    .entry li::marker { color: var(--accent); }
-    .entry p { font-size: 14px; color: var(--ink-soft); margin-top: 4px; }
-
-    .side-group { margin-bottom: 14px; }
-    .side-group h3 { font-size: 13px; margin-bottom: 6px; }
-    .tags { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; }
-    .tags li {
-      font-size: 12.5px; padding: 3px 9px;
-      border-radius: 999px;
-      background: #e0f2fe; color: #075985;
+    .avatar {
+      width: 112px; height: 112px; padding: 4px; border-radius: 50%;
+      background: conic-gradient(var(--blue), var(--green), transparent 70%, var(--blue));
+      animation: spin 6s linear infinite;
     }
-    .plain { list-style: none; font-size: 14px; color: var(--ink-soft); }
-    .plain li { margin-bottom: 4px; }
-    .plain strong { color: var(--ink); font-weight: 600; }
+    .avatar > * {
+      width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+      display: grid; place-items: center;
+      background: var(--bg); color: var(--green);
+      font-weight: 800; font-size: 34px;
+      animation: spin 6s linear infinite reverse;
+    }
+    .status {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 4px 11px; margin-bottom: 10px;
+      border: 1px solid var(--border); border-radius: 999px;
+      background: rgba(11, 17, 32, 0.5);
+      color: var(--muted); font-size: 12.5px;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: ping 2s ease-out infinite; }
+    .intro h1 { font-size: clamp(32px, 5vw, 46px); line-height: 1.05; }
+    .intro .role { color: var(--muted); font-size: 17px; margin: 6px 0 16px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 6px 12px; border-radius: 8px;
+      border: 1px solid var(--border); background: rgba(11, 17, 32, 0.5);
+      color: var(--muted); font-size: 13.5px; cursor: pointer;
+      transition: color .15s, border-color .15s, transform .15s;
+    }
+    a.chip:hover, button.chip:hover { color: var(--text); border-color: var(--blue); transform: translateY(-2px); }
+    .chip:active { transform: scale(.95); }
+    span.chip { cursor: default; }
 
-    /* sections fade in one after another */
-    .stagger > * { animation: rise .6s var(--ease-out) backwards; }
-    .stagger > :nth-child(1) { animation-delay: .35s; }
-    .stagger > :nth-child(2) { animation-delay: .45s; }
-    .stagger > :nth-child(3) { animation-delay: .55s; }
-    .stagger > :nth-child(4) { animation-delay: .65s; }
-    .stagger > :nth-child(5) { animation-delay: .75s; }
-    @keyframes rise { from { opacity: 0; translate: 0 16px; } }
+    .stats {
+      grid-column: 1 / -1;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+      padding-top: 24px; border-top: 1px solid var(--border);
+    }
+    .stat { text-align: center; }
+    .stat b { display: block; font-size: 32px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .stat span { color: var(--muted); font-size: 13px; }
 
-    .note { max-width: 850px; margin: 16px auto 0; text-align: center; color: var(--muted); font-size: 13px; }
+    /* ---------- Skills ---------- */
+    .skill-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .skill-group { padding: 20px; }
+    .skill-group h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: 12px; }
+    .skill-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .skill {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 8px 12px; border-radius: 10px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      font-size: 14px; cursor: pointer;
+      transition: border-color .15s, background .15s, transform .15s;
+    }
+    .skill:hover { border-color: var(--blue); transform: translateY(-2px); }
+    .skill:active { transform: scale(.95); }
+    .skill[aria-pressed="true"] { border-color: var(--green); background: rgba(52, 211, 153, 0.12); }
+    .lvl { display: inline-flex; gap: 3px; }
+    .lvl i { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
+    .lvl i.on { background: var(--green); }
+
+    .filter-note {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      margin-top: 16px; padding: 10px 14px;
+      border-radius: 10px; border: 1px dashed var(--green);
+      background: rgba(52, 211, 153, 0.06);
+      font-size: 14px; color: var(--muted);
+      animation: fadeUp .3s var(--ease-out);
+    }
+    .filter-note[hidden] { display: none; }
+    .filter-note b { color: var(--green); }
+    .filter-note button {
+      margin-left: auto; background: none; border: 0; cursor: pointer;
+      color: var(--blue); font-size: 14px;
+    }
+    .filter-note button:hover { color: var(--green); }
+
+    /* things that can be dimmed by the skill filter */
+    [data-skills] { transition: opacity .3s, filter .3s, border-color .3s, box-shadow .3s; }
+    [data-skills].dim { opacity: .28; filter: grayscale(1); }
+    [data-skills].match .t-card, .proj.match {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.15);
+    }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .tag {
+      padding: 2px 9px; border-radius: 999px;
+      background: rgba(56, 189, 248, 0.1); color: var(--blue);
+      border: 1px solid transparent;
+      font-size: 12.5px; cursor: pointer;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .tag:hover { border-color: var(--blue); }
+    .tag.on { background: rgba(52, 211, 153, 0.18); color: var(--green); }
+
+    /* ---------- Experience timeline ---------- */
+    .timeline-wrap { position: relative; }
+    .timeline-wrap::before, .t-progress {
+      content: ""; position: absolute; left: 9px; top: 8px; width: 2px; border-radius: 2px;
+    }
+    .timeline-wrap::before { bottom: 8px; background: var(--border); }
+    .t-progress { height: 0; background: linear-gradient(var(--blue), var(--green)); }
+    .timeline { list-style: none; padding-left: 34px; }
+    .t-item { position: relative; margin-bottom: 16px; }
+    .t-item:last-child { margin-bottom: 0; }
+    .t-dot {
+      position: absolute; left: -31px; top: 22px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--bg); border: 2px solid var(--border);
+      transition: border-color .3s, background .3s;
+    }
+    .t-item.passed .t-dot { border-color: var(--blue); }
+    .t-item.now .t-dot { background: var(--green); border-color: var(--green); animation: ping 2s ease-out infinite; }
+    .t-card { transition: border-color .2s, box-shadow .2s; }
+    .t-card:hover { border-color: #2b3b5e; }
+    .t-card summary {
+      list-style: none; cursor: pointer;
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 18px;
+    }
+    .t-card summary::-webkit-details-marker { display: none; }
+    .t-card h3 { font-size: 17px; line-height: 1.3; }
+    .where { color: var(--blue); font-size: 14px; }
+    .date { margin-left: auto; color: var(--muted); font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .now-pill {
+      font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 999px; margin-left: 8px;
+      background: rgba(52, 211, 153, 0.15); color: var(--green); vertical-align: 2px;
+    }
+    .chev { flex: none; color: var(--muted); transition: transform .25s var(--ease-out); }
+    details[open] .chev { transform: rotate(180deg); }
+    .t-body { padding: 0 18px 18px; }
+    details[open] .t-body { animation: fadeUp .35s var(--ease-out); }
+    .t-body ul { padding-left: 18px; color: var(--muted); font-size: 15px; }
+    .t-body li { margin-bottom: 4px; }
+    .t-body li::marker { color: var(--green); }
+
+    /* ---------- Projects ---------- */
+    .proj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .proj {
+      display: flex; flex-direction: column;
+      padding: 20px;
+      transition: transform .2s, border-color .2s, box-shadow .2s, opacity .3s, filter .3s;
+    }
+    .proj:hover { transform: translateY(-4px); border-color: var(--blue); }
+    .proj-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .proj-icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      display: grid; place-items: center; font-size: 20px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      transition: transform .3s var(--ease-out);
+    }
+    .proj:hover .proj-icon { transform: rotate(-8deg) scale(1.08); }
+    .year { color: var(--muted); font-size: 13px; }
+    .proj h3 { font-size: 17px; margin-bottom: 4px; }
+    .proj p { color: var(--muted); font-size: 14.5px; }
+    .proj .tags { margin-bottom: 14px; }
+    .proj-link { margin-top: auto; font-size: 14px; font-weight: 600; }
+    .proj-link span { display: inline-block; transition: translate .2s var(--ease-out); }
+    .proj:hover .proj-link span { translate: 4px 0; }
+
+    /* ---------- Education + side quests ---------- */
+    .duo { display: grid; grid-template-columns: 1fr 1.2fr; gap: 16px; align-items: start; }
+    .edu { padding: 22px; }
+    .edu h3 { font-size: 17px; }
+    .edu p { color: var(--muted); font-size: 14.5px; margin-top: 6px; }
+    .quests { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .quest {
+      padding: 16px;
+      transition: transform .25s var(--ease-out), border-color .2s;
+    }
+    .quest:nth-child(odd):hover  { transform: rotate(-1.5deg) translateY(-3px); border-color: var(--blue); }
+    .quest:nth-child(even):hover { transform: rotate(1.5deg) translateY(-3px); border-color: var(--green); }
+    .quest .q-emoji { font-size: 22px; }
+    .quest small { display: block; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .1em; margin-top: 6px; }
+    .quest strong { font-size: 15px; }
+
+    /* ---------- CTA ---------- */
+    .cta {
+      position: relative; padding: 2px; border-radius: 18px;
+      background: var(--gradient);
+    }
+    .cta-inner {
+      border-radius: 16px; background: var(--surface);
+      padding: 36px 28px; text-align: center;
+    }
+    .cta h2 { font-size: 28px; margin-bottom: 6px; }
+    .cta p { color: var(--muted); margin-bottom: 20px; }
+    .cta .row { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
+
+    /* ---------- Toast ---------- */
+    .toast {
+      position: fixed; left: 50%; bottom: 24px; z-index: 30;
+      translate: -50% 20px; opacity: 0; pointer-events: none;
+      padding: 10px 18px; border-radius: 10px;
+      background: var(--surface-2); border: 1px solid var(--green);
+      color: var(--text); font-size: 14px;
+      box-shadow: 0 16px 40px -16px rgba(0, 0, 0, 0.8);
+      transition: opacity .25s, translate .25s var(--ease-out);
+    }
+    .toast.show { opacity: 1; translate: -50% 0; }
+
+    /* ---------- Animations ---------- */
+    @keyframes fadeUp { from { opacity: 0; translate: 0 14px; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes drift { from { transform: translate(-4%, -3%); } to { transform: translate(4%, 3%) rotate(6deg); } }
+    @keyframes ping {
+      0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.6); }
+      70%, 100% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+    }
+    .js .intro { animation: fadeUp .8s var(--ease-out) .1s backwards; }
+    .js .reveal {
+      opacity: 0; translate: 0 22px;
+      transition: opacity .6s ease var(--d, 0ms), translate .6s var(--ease-out) var(--d, 0ms),
+                  transform .2s, border-color .2s, box-shadow .2s, filter .3s;
+    }
+    .js .reveal.in { opacity: 1; translate: none; }
+    .js .reveal.in.dim { opacity: .28; }
 
     /* ---------- Small screens ---------- */
     @media (max-width: 720px) {
-      main { padding: 20px 12px 56px; }
-      .resume-header { padding: 28px 22px 22px; }
-      .resume-header h1 { font-size: 30px; }
-      .resume-body { grid-template-columns: 1fr; }
-      .col-main { padding: 24px 22px; }
-      .col-side { padding: 24px 22px 28px; border-left: 0; border-top: 1px solid var(--rule); }
-      .toolbar .logo { display: none; }
+      .wrap { padding-top: 24px; }
+      .intro { grid-template-columns: 1fr; padding: 26px 22px; text-align: left; gap: 18px; }
+      .avatar { width: 84px; height: 84px; }
+      .avatar > * { font-size: 26px; }
+      .stat b { font-size: 26px; }
+      .duo { grid-template-columns: 1fr; }
+      .t-card summary { flex-wrap: wrap; gap: 4px 12px; }
+      .t-card summary > div { flex: 1 1 100%; order: 1; }
+      .date { margin-left: 0; order: 2; }
+      .chev { margin-left: auto; order: 3; }
+      .logo { display: none; }
     }
-
     @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
       *, *::before, *::after { animation: none !important; transition: none !important; }
+      .js .reveal { opacity: 1; translate: none; }
     }
 
-    /* ---------- Print / Save as PDF: just the paper ---------- */
-    @page { size: letter; margin: 0.45in; }
+    /* =========================================================
+       PRINT / SAVE AS PDF: a plain, traditional resume.
+       The fun stuff is hidden and every job is expanded.
+       ========================================================= */
+    @page { size: letter; margin: 0.5in; }
     @media print {
-      body { background: #fff; }
-      .toolbar, .note { display: none; }
-      main { padding: 0; }
-      .paper { box-shadow: none; border-radius: 0; max-width: none; animation: none; }
-      .paper::before { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-      .stagger > * { animation: none; }
-      .resume-header { padding: 18px 0 16px; }
-      .col-main { padding: 18px 24px 0 0; }
-      .col-side { padding: 18px 0 0 20px; background: none; }
-      .tags li { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-      .entry, .side-group { break-inside: avoid; }
-      a { text-decoration: none; }
+      :root {
+        --bg: #fff; --surface: #fff; --surface-2: #fff; --border: #e2e8f0;
+        --text: #0f172a; --muted: #475569; --blue: #0369a1; --green: #047857;
+      }
+      html, body { background: #fff; font-size: 12.5px; }
+      *, *::before, *::after { animation: none !important; transition: none !important; box-shadow: none !important; }
+      .toolbar, .toast, .filter-note, .skill-hint, .cta, .quests-wrap, .stats, .avatar,
+      .status, .chev, .proj-link, .proj-icon, .t-progress, .t-dot, .timeline-wrap::before,
+      .intro::before { display: none !important; }
+      .reveal, [data-skills] { opacity: 1 !important; translate: none !important; filter: none !important; }
+      .grad { background: none; color: var(--text); }
+      .wrap { padding: 0; max-width: none; }
+      section { margin-bottom: 18px; }
+      .section-head { margin-bottom: 8px; border-bottom: 2px solid var(--border); padding-bottom: 4px; }
+      .section-head h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .1em; color: var(--blue); }
+      .card { border: 0; border-radius: 0; }
+      .intro { display: block; padding: 0 0 12px; overflow: visible; }
+      .intro h1 { font-size: 28px; }
+      .intro .role { margin: 2px 0 8px; }
+      .chip { border: 0; padding: 0 14px 0 0; background: none; color: var(--muted); }
+      .skill-groups { display: block; }
+      .skill-group { padding: 0; margin-bottom: 6px; }
+      .skill-group h3 { display: inline; margin-right: 8px; }
+      .skill-list { display: inline; }
+      .skill { display: inline; border: 0; padding: 0; background: none; }
+      .skill:not(:last-child)::after { content: ","; }
+      .lvl { display: none; }
+      .timeline { padding-left: 0; }
+      .t-item { margin-bottom: 10px; break-inside: avoid; }
+      .t-card summary { padding: 0; }
+      .t-body { padding: 2px 0 0; }
+      .t-body ul { font-size: 12.5px; }
+      .now-pill { background: none; padding: 0; }
+      .tags { display: none; }
+      .proj-grid { display: block; }
+      .proj { padding: 0; margin-bottom: 8px; break-inside: avoid; }
+      .proj-top { display: none; }
+      .proj h3 { display: inline; font-size: 13.5px; }
+      .proj h3::after { content: " · " attr(data-year); color: var(--muted); font-weight: 400; }
+      .proj p { display: inline; margin-left: 6px; font-size: 12.5px; }
+      .duo { display: block; }
+      .edu { padding: 0; }
     }
   </style>
 </head>
@@ -200,129 +399,347 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         Home
       </a>
-      <span class="logo">JR Waughon</span>
-      <button class="print-btn" type="button" onclick="window.print()">
+      <span class="logo grad">JR Waughon</span>
+      <button class="btn btn-primary" type="button" data-print>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
         Save as PDF
       </button>
     </div>
   </header>
 
-  <main>
-    <!-- =========================================================
-         RESUME CONTENT: replace the placeholder text below.
-         Copy an .entry block to add more jobs / projects / schools.
-         ========================================================= -->
-    <article class="paper">
-      <header class="resume-header">
-        <h1>JR Waughon</h1>
-        <p class="role">Developer</p>
-        <ul class="contact">
-          <li>
+  <!-- =========================================================
+       RESUME CONTENT: everything below is placeholder text.
+       - data-skills="html,css,js" on a job/project links it to the
+         skill buttons (use the same keys as the data-skill values).
+       - Copy a <li class="t-item"> or <article class="proj"> to add more.
+       ========================================================= -->
+  <main class="wrap">
+
+    <!-- Intro -->
+    <section class="card intro">
+      <div class="avatar"><span>JR</span></div>
+      <div>
+        <span class="status"><span class="dot"></span>Open to opportunities</span>
+        <h1>JR <span class="grad">Waughon</span></h1>
+        <p class="role">Developer · building web apps, games &amp; tools</p>
+        <div class="chips">
+          <button class="chip" type="button" data-copy="you@example.com">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
-            <a href="mailto:you@example.com">you@example.com</a>
-          </li>
-          <li>
+            you@example.com
+          </button>
+          <a class="chip" href="https://github.com/jonathonwaughon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
-            <a href="https://github.com/jonathonwaughon">github.com/jonathonwaughon</a>
-          </li>
-          <li>
+            github.com/jonathonwaughon
+          </a>
+          <a class="chip" href="https://linkedin.com/">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-            <a href="https://linkedin.com/">linkedin.com/in/your-profile</a>
-          </li>
-          <li>
+            LinkedIn
+          </a>
+          <span class="chip">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-6.5-8-13a8 8 0 0 1 16 0c0 6.5-8 13-8 13z"/><circle cx="12" cy="9" r="3"/></svg>
             City, State
-          </li>
-        </ul>
-      </header>
-
-      <div class="resume-body">
-        <div class="col-main stagger">
-          <section class="block">
-            <h2>Summary</h2>
-            <p class="summary">
-              Developer who enjoys building web apps, games, and tools. Two or three sentences
-              about what you're good at, what you care about, and what kind of role you're looking for.
-            </p>
-          </section>
-
-          <section class="block">
-            <h2>Experience</h2>
-            <div class="entry">
-              <div class="entry-head"><h3>Job Title</h3><span class="date">Month 2025 – Present</span></div>
-              <div class="where">Company Name · City, State</div>
-              <ul>
-                <li>Start with an action verb and say what you did and the result.</li>
-                <li>Use numbers where you can (e.g. "cut load time by 40%").</li>
-                <li>Two to four bullets per role is plenty.</li>
-              </ul>
-            </div>
-            <div class="entry">
-              <div class="entry-head"><h3>Job Title</h3><span class="date">Month 2024 – Month 2025</span></div>
-              <div class="where">Company Name · City, State</div>
-              <ul>
-                <li>Something you built, improved, or were responsible for.</li>
-                <li>Another accomplishment worth bragging about.</li>
-              </ul>
-            </div>
-          </section>
-
-          <section class="block">
-            <h2>Projects</h2>
-            <div class="entry">
-              <div class="entry-head"><h3>Personal Portfolio</h3><span class="date">2026</span></div>
-              <p>This site: a responsive portfolio with a recursive, data-driven sidebar and custom animations. HTML, CSS, JavaScript.</p>
-            </div>
-            <div class="entry">
-              <div class="entry-head"><h3>Project blahlglala</h3><span class="date">Year</span></div>
-              <p>One line on what it does, plus the tech you used.</p>
-            </div>
-          </section>
-
-          <section class="block">
-            <h2>Education</h2>
-            <div class="entry">
-              <div class="entry-head"><h3>Degree or Program</h3><span class="date">Expected Year</span></div>
-              <div class="where">School Name · City, State</div>
-              <p>Relevant coursework, GPA, or honors (optional).</p>
-            </div>
-          </section>
+          </span>
         </div>
-
-        <aside class="col-side stagger">
-          <section class="block">
-            <h2>Skills</h2>
-            <div class="side-group">
-              <h3>Languages</h3>
-              <ul class="tags"><li>HTML</li><li>CSS</li><li>JavaScript</li></ul>
-            </div>
-            <div class="side-group">
-              <h3>Tools</h3>
-              <ul class="tags"><li>Git</li><li>GitHub</li><li>VS Code</li></ul>
-            </div>
-          </section>
-
-          <section class="block">
-            <h2>Interests</h2>
-            <ul class="plain">
-              <li>Web development</li>
-              <li>Game development</li>
-              <li>Building useful tools</li>
-            </ul>
-          </section>
-
-          <section class="block">
-            <h2>Certifications</h2>
-            <ul class="plain">
-              <li><strong>Certification Name</strong><br>Issuer · Year</li>
-            </ul>
-          </section>
-        </aside>
       </div>
-    </article>
-    <p class="note">Tip: "Save as PDF" opens your browser's print dialog. Choose "Save as PDF" as the destination.</p>
+      <!-- data-count animates up to that number; anything else is shown as-is -->
+      <div class="stats">
+        <div class="stat"><b class="grad" data-count="3">3</b><span>years coding</span></div>
+        <div class="stat"><b class="grad" data-count="10">10</b><span>projects built</span></div>
+        <div class="stat"><b class="grad">∞</b><span>cups of coffee</span></div>
+      </div>
+    </section>
+
+    <!-- Skills -->
+    <section id="skills">
+      <div class="section-head">
+        <h2>Skills</h2>
+        <small class="skill-hint">tap one to see where I've used it</small>
+      </div>
+      <!-- data-level = 1 to 5 dots -->
+      <div class="skill-groups">
+        <div class="card skill-group reveal">
+          <h3>Languages</h3>
+          <div class="skill-list">
+            <button class="skill" type="button" data-skill="html" data-level="4">HTML</button>
+            <button class="skill" type="button" data-skill="css" data-level="4">CSS</button>
+            <button class="skill" type="button" data-skill="js" data-level="3">JavaScript</button>
+          </div>
+        </div>
+        <div class="card skill-group reveal" style="--d:90ms">
+          <h3>Tools</h3>
+          <div class="skill-list">
+            <button class="skill" type="button" data-skill="git" data-level="3">Git</button>
+            <button class="skill" type="button" data-skill="github" data-level="3">GitHub</button>
+            <button class="skill" type="button" data-skill="vscode" data-level="4">VS Code</button>
+          </div>
+        </div>
+      </div>
+      <p class="filter-note" id="filterNote" hidden>
+        Highlighting where I've used <b id="filterName"></b>
+        <button type="button" id="filterClear">Clear ✕</button>
+      </p>
+    </section>
+
+    <!-- Experience -->
+    <section id="experience">
+      <div class="section-head"><h2>Experience</h2><small>click a role for details</small></div>
+      <div class="timeline-wrap">
+        <span class="t-progress" id="tProgress"></span>
+        <ol class="timeline">
+          <li class="t-item now reveal" data-skills="html,css,js,git">
+            <span class="t-dot"></span>
+            <details class="card t-card" open>
+              <summary>
+                <div><h3>Job Title<span class="now-pill">Now</span></h3><div class="where">Company Name · City, State</div></div>
+                <span class="date">2025 – Present</span>
+                <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+              </summary>
+              <div class="t-body">
+                <ul>
+                  <li>Start with an action verb and say what you did and the result.</li>
+                  <li>Use numbers where you can (e.g. "cut load time by 40%").</li>
+                  <li>Two to four bullets per role is plenty.</li>
+                </ul>
+                <div class="tags"></div>
+              </div>
+            </details>
+          </li>
+          <li class="t-item reveal" data-skills="html,css,github">
+            <span class="t-dot"></span>
+            <details class="card t-card">
+              <summary>
+                <div><h3>Job Title</h3><div class="where">Company Name · City, State</div></div>
+                <span class="date">2024 – 2025</span>
+                <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+              </summary>
+              <div class="t-body">
+                <ul>
+                  <li>Something you built, improved, or were responsible for.</li>
+                  <li>Another accomplishment worth bragging about.</li>
+                </ul>
+                <div class="tags"></div>
+              </div>
+            </details>
+          </li>
+          <li class="t-item reveal" data-skills="vscode,js">
+            <span class="t-dot"></span>
+            <details class="card t-card">
+              <summary>
+                <div><h3>Where it all started</h3><div class="where">Self-taught · wherever there was Wi-Fi</div></div>
+                <span class="date">2023</span>
+                <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+              </summary>
+              <div class="t-body">
+                <ul>
+                  <li>Wrote my first lines of code and immediately broke something.</li>
+                  <li>Fixed it. Got hooked.</li>
+                </ul>
+                <div class="tags"></div>
+              </div>
+            </details>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Projects -->
+    <section id="projects">
+      <div class="section-head"><h2>Projects</h2><small>stuff I've shipped</small></div>
+      <div class="proj-grid">
+        <article class="card proj reveal" data-skills="html,css,js,git,github">
+          <div class="proj-top"><span class="proj-icon">🌐</span><span class="year">2026</span></div>
+          <h3 data-year="2026">Personal Portfolio</h3>
+          <p>This site: a recursive, data-driven sidebar, custom animations, and this resume.</p>
+          <div class="tags"></div>
+          <a class="proj-link" href="../">See it live <span>→</span></a>
+        </article>
+        <article class="card proj reveal" style="--d:90ms" data-skills="js">
+          <div class="proj-top"><span class="proj-icon">🎮</span><span class="year">Year</span></div>
+          <h3 data-year="Year">Project blahlglala</h3>
+          <p>One line on what it does and why it's cool.</p>
+          <div class="tags"></div>
+          <a class="proj-link" href="#">Check it out <span>→</span></a>
+        </article>
+        <article class="card proj reveal" style="--d:180ms" data-skills="html,css">
+          <div class="proj-top"><span class="proj-icon">🛠️</span><span class="year">Year</span></div>
+          <h3 data-year="Year">project whatever</h3>
+          <p>yeyretye. (Replace with a real description.)</p>
+          <div class="tags"></div>
+          <a class="proj-link" href="#">Check it out <span>→</span></a>
+        </article>
+      </div>
+    </section>
+
+    <!-- Education + side quests -->
+    <section class="duo">
+      <div>
+        <div class="section-head"><h2>Education</h2></div>
+        <div class="card edu reveal">
+          <h3>Degree or Program</h3>
+          <div class="where">School Name · Expected Year</div>
+          <p>Relevant coursework, GPA, or honors (optional).</p>
+        </div>
+      </div>
+      <div class="quests-wrap">
+        <div class="section-head"><h2>Side quests</h2></div>
+        <div class="quests">
+          <div class="card quest reveal"><span class="q-emoji">📚</span><small>Currently learning</small><strong>Something new</strong></div>
+          <div class="card quest reveal" style="--d:70ms"><span class="q-emoji">☕</span><small>Fueled by</small><strong>Coffee</strong></div>
+          <div class="card quest reveal" style="--d:140ms"><span class="q-emoji">🎧</span><small>Coding soundtrack</small><strong>Lo-fi beats</strong></div>
+          <div class="card quest reveal" style="--d:210ms"><span class="q-emoji">✨</span><small>Fun fact</small><strong>I'm pretty awesome</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta reveal">
+      <div class="cta-inner">
+        <h2>Like what you see?</h2>
+        <p>I'm open to opportunities. Let's build something cool.</p>
+        <div class="row">
+          <button class="btn btn-primary" type="button" data-copy="you@example.com">Copy my email</button>
+          <button class="btn btn-ghost" type="button" data-print>Get the PDF version</button>
+        </div>
+      </div>
+    </section>
   </main>
 
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+    /* ---------- Skill level dots + labels ---------- */
+    const skillNames = {};
+    $$(".skill").forEach((btn) => {
+      skillNames[btn.dataset.skill] = btn.textContent.trim();
+      btn.setAttribute("aria-pressed", "false");
+      const lvl = document.createElement("span");
+      lvl.className = "lvl";
+      lvl.setAttribute("aria-label", `${btn.dataset.level} out of 5`);
+      for (let i = 1; i <= 5; i++) {
+        const d = document.createElement("i");
+        if (i <= +btn.dataset.level) d.className = "on";
+        lvl.appendChild(d);
+      }
+      btn.appendChild(lvl);
+    });
+
+    /* ---------- Auto tags on jobs & projects (from data-skills) ---------- */
+    $$("[data-skills]").forEach((item) => {
+      const box = item.querySelector(".tags");
+      if (!box) return;
+      item.dataset.skills.split(",").forEach((key) => {
+        const t = document.createElement("button");
+        t.type = "button";
+        t.className = "tag";
+        t.dataset.skill = key.trim();
+        t.textContent = skillNames[key.trim()] || key.trim();
+        box.appendChild(t);
+      });
+    });
+
+    /* ---------- Skill filter: highlight where a skill was used ---------- */
+    let activeSkill = null;
+    const note = document.getElementById("filterNote");
+
+    function setFilter(skill) {
+      activeSkill = activeSkill === skill ? null : skill;
+      $$(".skill").forEach((b) => b.setAttribute("aria-pressed", b.dataset.skill === activeSkill));
+      $$(".tag").forEach((t) => t.classList.toggle("on", t.dataset.skill === activeSkill));
+      $$("[data-skills]").forEach((item) => {
+        const has = activeSkill && item.dataset.skills.split(",").map((s) => s.trim()).includes(activeSkill);
+        item.classList.toggle("match", !!has);
+        item.classList.toggle("dim", !!activeSkill && !has);
+        // open matching jobs so you can see the details
+        if (has) { const d = item.querySelector("details"); if (d) d.open = true; }
+      });
+      note.hidden = !activeSkill;
+      if (activeSkill) document.getElementById("filterName").textContent = skillNames[activeSkill] || activeSkill;
+    }
+
+    document.addEventListener("click", (e) => {
+      const el = e.target.closest(".skill, .tag");
+      if (!el) return;
+      e.preventDefault(); // tags sit inside <summary>-adjacent areas; don't toggle anything else
+      setFilter(el.dataset.skill);
+    });
+    document.getElementById("filterClear").addEventListener("click", () => setFilter(activeSkill));
+
+    /* ---------- Copy email + toast ---------- */
+    const toast = document.getElementById("toast");
+    let toastTimer;
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2000);
+    }
+    $$("[data-copy]").forEach((btn) => btn.addEventListener("click", async () => {
+      const text = btn.dataset.copy;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("📋 Email copied!");
+      } catch {
+        window.location.href = "mailto:" + text; // clipboard blocked: open mail app instead
+      }
+    }));
+
+    /* ---------- Print: expand every job first, restore after ---------- */
+    let openState = [];
+    window.addEventListener("beforeprint", () => {
+      openState = $$("details").map((d) => d.open);
+      $$("details").forEach((d) => (d.open = true));
+    });
+    window.addEventListener("afterprint", () => {
+      $$("details").forEach((d, i) => (d.open = openState[i]));
+    });
+    $$("[data-print]").forEach((b) => b.addEventListener("click", () => window.print()));
+
+    /* ---------- Stat counters ---------- */
+    $$("[data-count]").forEach((el) => {
+      const target = +el.dataset.count;
+      if (reduceMotion || !target) return;
+      const start = performance.now() + 500, dur = 1200;
+      el.textContent = "0";
+      const tick = (now) => {
+        const p = Math.min(Math.max((now - start) / dur, 0), 1);
+        el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+
+    /* ---------- Scroll reveal ---------- */
+    const reveals = $$(".reveal");
+    if ("IntersectionObserver" in window && !reduceMotion) {
+      const io = new IntersectionObserver((entries) => entries.forEach((en) => {
+        if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+      }), { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+      reveals.forEach((el) => io.observe(el));
+    } else {
+      reveals.forEach((el) => el.classList.add("in"));
+    }
+
+    /* ---------- Timeline line draws as you scroll ---------- */
+    const tWrap = document.querySelector(".timeline-wrap");
+    const tProg = document.getElementById("tProgress");
+    const tItems = $$(".t-item");
+    function drawTimeline() {
+      const r = tWrap.getBoundingClientRect();
+      const h = Math.min(Math.max(window.innerHeight * 0.65 - r.top, 0), r.height - 16);
+      tProg.style.height = h + "px";
+      tItems.forEach((li) => li.classList.toggle("passed", li.offsetTop + 22 <= h));
+    }
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(() => { drawTimeline(); ticking = false; }); }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    tWrap.addEventListener("toggle", onScroll, true); // expanding a job changes the height
+    drawTimeline();
+  </script>
 </body>
 </html>
