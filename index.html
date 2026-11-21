@@ -204,20 +204,46 @@
     }
     .code-head {
       display: flex; align-items: center; gap: 6px;
-      padding: 12px 14px;
+      padding: 0 0 0 14px; min-height: 40px;
       border-bottom: 1px solid var(--border);
     }
-    .code-head span { width: 10px; height: 10px; border-radius: 50%; opacity: .8; }
-    .code-head span:nth-child(1) { background: #f87171; }
-    .code-head span:nth-child(2) { background: #fbbf24; }
-    .code-head span:nth-child(3) { background: #34d399; }
-    .code-head em {
-      margin-left: 8px; font-style: normal; font-size: 12px; color: var(--muted);
-      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    .code-head > span { flex: none; width: 10px; height: 10px; border-radius: 50%; opacity: .8; }
+    .code-head > span:nth-child(1) { background: #f87171; }
+    .code-head > span:nth-child(2) { background: #fbbf24; }
+    .code-head > span:nth-child(3) { background: #34d399; }
+
+    /* file tabs */
+    .code-tabs {
+      display: flex; align-self: stretch; min-width: 0;
+      margin-left: 10px;
+      overflow-x: auto; scrollbar-width: none;
     }
+    .code-tabs::-webkit-scrollbar { display: none; }
+    .code-tab {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 0 14px;
+      background: none; border: 0;
+      border-bottom: 2px solid transparent;
+      border-left: 1px solid var(--border);
+      color: var(--muted); cursor: pointer; white-space: nowrap;
+      font: 12px ui-monospace, "Cascadia Code", Consolas, monospace;
+      transition: color .15s, background .15s, border-color .15s;
+    }
+    .code-tab:last-child { border-right: 1px solid var(--border); }
+    .code-tab:hover { color: var(--text); background: rgba(255, 255, 255, 0.03); }
+    .code-tab.active {
+      color: var(--text);
+      background: rgba(56, 189, 248, 0.07);
+      border-bottom-color: var(--blue);
+    }
+    .code-tab:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+    .file-icon { width: 8px; height: 8px; border-radius: 2px; }
+    .file-icon.js { background: #fbbf24; }
+    .file-icon.py { background: #38bdf8; }
+
     .code-card pre {
       padding: 18px 20px 24px;
-      min-height: 232px;
+      min-height: calc(7 * 1.75em + 42px); /* fits the longest file so switching tabs doesn't jump */
       font: 14px/1.75 ui-monospace, "Cascadia Code", Consolas, monospace;
       white-space: pre; overflow-x: auto;
     }
@@ -531,11 +557,14 @@
           </div>
         </div>
 
-        <!-- decorative: a code editor that types out a little "about me" -->
-        <div class="hero-visual anim" style="--o:2" aria-hidden="true">
+        <!-- a mini IDE: tabs + code are generated from FILES in the script below -->
+        <div class="hero-visual anim" style="--o:2">
           <div class="code-card">
-            <div class="code-head"><span></span><span></span><span></span><em>about-me.js</em></div>
-            <pre><code id="codeType"></code></pre>
+            <div class="code-head">
+              <span></span><span></span><span></span>
+              <div class="code-tabs" id="codeTabs" role="tablist" aria-label="Files"></div>
+            </div>
+            <pre role="tabpanel"><code id="codeType"></code></pre>
           </div>
           <!-- swap the initials for <img src="me.jpg" alt=""> to use a photo -->
           <div class="avatar-wrap"><div class="avatar"><span>JR</span></div></div>
@@ -887,16 +916,35 @@
     // This is only used if that file can't be loaded (e.g. opening index.html straight from disk).
     const FALLBACK_WHAT_I_DO = { build: ["web apps", "games", "tools", "things that look cool"] };
 
-    // the code card types this out; each piece is [color, text]
-    // colors: c=comment k=keyword v=variable x=key p=punctuation s=string n=number
-    const CODE = [
-      ["c", "// thanks for stopping by\n"],
-      ["k", "const "], ["v", "jr"], ["p", " = {\n"],
-      ["x", "  role"], ["p", ": "], ["s", '"Developer"'], ["p", ",\n"],
-      ["x", "  focus"], ["p", ": ["], ["s", '"web"'], ["p", ", "], ["s", '"games"'], ["p", ", "], ["s", '"tools"'], ["p", "],\n"],
-      ["x", "  currently"], ["p", ": "], ["s", '"building this site"'], ["p", ",\n"],
-      ["x", "  coffee"], ["p", ": "], ["n", "Infinity"], ["p", ",\n"],
-      ["p", "};"],
+    // Files shown as tabs in the mini IDE. The first one opens on load.
+    // `icon` sets the little colored square on the tab: "js" (yellow) or "py" (blue).
+    // Each code piece is [color, text]:
+    //   c=comment k=keyword v=variable x=key p=punctuation s=string n=number
+    const FILES = [
+      {
+        name: "about-me.js", icon: "js",
+        code: [
+          ["c", "// thanks for stopping by\n"],
+          ["k", "const "], ["v", "jr"], ["p", " = {\n"],
+          ["x", "  role"], ["p", ": "], ["s", '"Analyst and Developer"'], ["p", ",\n"],
+          ["x", "  focus"], ["p", ": ["], ["s", '"finance"'], ["p", ", "], ["s", '"coding"'], ["p", ", "], ["s", '"ai"'], ["p", "],\n"],
+          ["x", "  currently"], ["p", ": "], ["s", '"building this site"'], ["p", ",\n"],
+          ["x", "  requirements"], ["p", ": ["], ["s", '"caffeine"'], ["p", ", "], ["s", '"moral support"'], ["p", "],\n"],
+          ["p", "};"],
+        ],
+      },
+      {
+        name: "education.py", icon: "py",
+        code: [
+          ["c", "# filler for now: swap in the real details\n"],
+          ["k", "class "], ["v", "Education"], ["p", ":\n"],
+          ["x", "    school"], ["p", " = "], ["s", '"University Name"'], ["p", "\n"],
+          ["x", "    degree"], ["p", " = "], ["s", '"B.S. in Something"'], ["p", "\n"],
+          ["x", "    graduating"], ["p", " = "], ["n", "2027"], ["p", "\n"],
+          ["x", "    coursework"], ["p", " = ["], ["s", '"Finance"'], ["p", ", "], ["s", '"Statistics"'], ["p", "]\n"],
+          ["x", "    gpa"], ["p", " = "], ["k", "None"], ["p", "  "], ["c", "# coming soon"],
+        ],
+      },
     ];
 
     async function loadHomeConfig() {
@@ -976,35 +1024,78 @@
       }
     }
 
-    async function typeCode() {
-      const el = document.getElementById("codeType");
-      if (!el) return;
+    /* ---------- Mini IDE: tabs + typing ---------- */
+    function setupCodeTabs() {
+      const codeEl = document.getElementById("codeType");
+      const tabsEl = document.getElementById("codeTabs");
+      if (!codeEl || !tabsEl) return;
+
+      const alreadyTyped = new Set(); // each file types itself only the first time it's opened
+      let run = 0;                    // bumps on every tab switch, so an old typing loop knows to stop
+
       const token = (cls, text) => {
         const s = document.createElement("span");
         s.className = "tok-" + cls;
         s.textContent = text;
         return s;
       };
-      if (reduceMotion.matches) {
-        CODE.forEach(([cls, text]) => el.append(token(cls, text)));
-        return;
-      }
-      const caret = document.createElement("span");
-      caret.className = "type-caret";
-      el.append(caret);
-      await sleep(1000); // let the card fade in first
-      for (const [cls, text] of CODE) {
-        const span = token(cls, "");
-        el.insertBefore(span, caret);
-        for (const ch of text) {
-          span.textContent += ch;
-          await sleep(ch === "\n" ? 140 : 24);
+      const caret = () => {
+        const c = document.createElement("span");
+        c.className = "type-caret";
+        return c;
+      };
+
+      const tabs = FILES.map((file, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "code-tab";
+        btn.setAttribute("role", "tab");
+        btn.innerHTML = `<i class="file-icon ${file.icon}"></i>`;
+        btn.append(file.name);
+        btn.addEventListener("click", () => showFile(i, true));
+        tabsEl.appendChild(btn);
+        return btn;
+      });
+
+      async function showFile(index, animate) {
+        const myRun = ++run;
+        const file = FILES[index];
+        tabs.forEach((t, i) => {
+          t.classList.toggle("active", i === index);
+          t.setAttribute("aria-selected", i === index);
+        });
+        codeEl.textContent = "";
+        const end = caret();
+        codeEl.append(end);
+
+        if (!animate || reduceMotion.matches || alreadyTyped.has(file.name)) {
+          file.code.forEach(([cls, text]) => codeEl.insertBefore(token(cls, text), end));
+          alreadyTyped.add(file.name);
+          return;
         }
+        for (const [cls, text] of file.code) {
+          const span = token(cls, "");
+          codeEl.insertBefore(span, end);
+          for (const ch of text) {
+            if (myRun !== run) return; // user switched tabs mid-typing
+            span.textContent += ch;
+            await sleep(ch === "\n" ? 140 : 24);
+          }
+        }
+        alreadyTyped.add(file.name);
       }
+
+      // open the first tab (empty) right away, then start typing once the card has faded in
+      tabs[0].classList.add("active");
+      tabs[0].setAttribute("aria-selected", "true");
+      codeEl.append(caret());
+      const startRun = run;
+      if (reduceMotion.matches) return showFile(0, false);
+      sleep(1000).then(() => { if (run === startRun) showFile(0, true); });
     }
 
     rotateWhatIDo();
-    typeCode();
+    setupCodeTabs();
   </script>
 
   <script>
@@ -1019,6 +1110,16 @@
         sizeRange: [12, 24],    // bell radius in px
         current: 0.004,         // how hard the water pushes everything to the right
         colors: [[56, 189, 248], [52, 211, 153], [167, 139, 250], [244, 114, 182]],
+
+        fishEvery: [12, 25],    // seconds between fish schools (random in this range)
+        fishPerSchool: [5, 9],
+        fishColors: [[251, 191, 36], [251, 146, 60], [125, 211, 252], [244, 114, 182]],
+
+        krakenEvery: [35, 60],  // seconds between kraken peeks
+        krakenColors: [[168, 85, 247], [244, 63, 94], [236, 72, 153]],
+
+        firstFishAfter: 4,      // seconds after load, so visitors actually see them
+        firstKrakenAfter: 18,
       };
 
       const canvas = document.getElementById("ocean");
@@ -1030,6 +1131,10 @@
 
       let W = 0, H = 0;
       let jellies = [], specks = [], rays = [];
+      let schools = [], kraken = null;
+      let nextFish = null, nextKraken = null, lastT = 0;
+      const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+      const shade = ([r, g, b], k) => `rgb(${Math.round(r * k)},${Math.round(g * k)},${Math.round(b * k)})`;
       const mouse = { x: -9999, y: -9999 };
 
       function makeJelly(anywhere) {
@@ -1252,14 +1357,229 @@
         ctx.restore();
       }
 
+      /* ---------- fish schools ---------- */
+      function spawnSchool() {
+        const dir = Math.random() < 0.5 ? 1 : -1; // 1 = swimming right
+        const size = rand(7, 11);
+        const school = {
+          dir, size,
+          x: dir > 0 ? -60 : W + 60,
+          y: rand(H * 0.15, H * 0.75),
+          speed: rand(1.3, 2.1),
+          color: pick(SETTINGS.fishColors),
+          seed: rand(0, 1000),
+          fish: [],
+        };
+        const n = Math.round(rand(...SETTINGS.fishPerSchool));
+        for (let i = 0; i < n; i++) {
+          school.fish.push({
+            ox: -dir * (i === 0 ? 0 : rand(10, 110)), // trailing behind the leader
+            oy: i === 0 ? 0 : rand(-38, 38),
+            px: 0, py: 0, vx: 0, vy: 0,                 // scatter offset (cursor), springs back
+            phase: rand(0, TAU),
+            s: size * rand(0.8, 1.15),
+          });
+        }
+        schools.push(school);
+      }
+
+      function updateAndDrawSchools(t, f) {
+        schools = schools.filter((sc) => {
+          if (f) sc.x += sc.dir * sc.speed * f;
+          const wave = Math.sin(t * 0.8 + sc.seed) * 14;
+          for (const fish of sc.fish) {
+            let x = sc.x + fish.ox + fish.px;
+            let y = sc.y + fish.oy + wave + Math.sin(t * 3 + fish.phase) * 3 + fish.py;
+            if (f) {
+              const dx = x - mouse.x, dy = y - mouse.y, d2 = dx * dx + dy * dy;
+              if (d2 < 110 * 110) {
+                const d = Math.sqrt(d2) || 1;
+                fish.vx += (dx / d) * 0.9 * f;
+                fish.vy += (dy / d) * 0.9 * f;
+              }
+              fish.vx += -fish.px * 0.02 * f; fish.vy += -fish.py * 0.02 * f; // spring back into formation
+              const damp = Math.pow(0.88, f);
+              fish.vx *= damp; fish.vy *= damp;
+              fish.px += fish.vx * f; fish.py += fish.vy * f;
+            }
+            drawFish(x, y, fish.s, sc.dir, sc.color, t * 12 + fish.phase);
+          }
+          // keep until the last fish is off screen
+          return sc.dir > 0 ? sc.x - 140 < W + 40 : sc.x + 140 > -40;
+        });
+      }
+
+      function drawFish(x, y, s, dir, color, wagT) {
+        const wag = Math.sin(wagT) * 0.35 * s;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(dir, 1);
+        ctx.globalAlpha = 0.8;
+        // tail
+        ctx.fillStyle = shade(color, 0.75);
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.75, 0);
+        ctx.lineTo(-s * 1.6, -s * 0.6 + wag);
+        ctx.lineTo(-s * 1.6, s * 0.6 + wag);
+        ctx.closePath();
+        ctx.fill();
+        // top fin
+        ctx.beginPath();
+        ctx.moveTo(-s * 0.3, -s * 0.5);
+        ctx.quadraticCurveTo(0, -s * 1.05, s * 0.3, -s * 0.5);
+        ctx.fill();
+        // body
+        ctx.fillStyle = shade(color, 1);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, s, s * 0.6, 0, 0, TAU);
+        ctx.fill();
+        // belly shine
+        ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
+        ctx.beginPath();
+        ctx.ellipse(s * 0.05, s * 0.2, s * 0.6, s * 0.2, 0, 0, TAU);
+        ctx.fill();
+        // eye
+        ctx.fillStyle = "#0b1120";
+        ctx.beginPath(); ctx.arc(s * 0.5, -s * 0.12, s * 0.15, 0, TAU); ctx.fill();
+        ctx.fillStyle = "#fff";
+        ctx.beginPath(); ctx.arc(s * 0.55, -s * 0.18, s * 0.06, 0, TAU); ctx.fill();
+        ctx.restore();
+      }
+
+      /* ---------- kraken ---------- */
+      const easeOutBack = (p) => 1 + 2.2 * Math.pow(p - 1, 3) + 1.2 * Math.pow(p - 1, 2);
+      const easeInCubic = (p) => p * p * p;
+
+      function spawnKraken(t) {
+        if (kraken) return;
+        const size = Math.max(50, Math.min(90, Math.min(W, H) * 0.12));
+        const minX = W > 860 ? 260 + size : size; // stay out from under the desktop sidebar
+        kraken = {
+          x: rand(minX, Math.max(minX + 1, W - size * 1.2)),
+          size, t0: t, seed: rand(0, 1000),
+          color: pick(SETTINGS.krakenColors),
+          rise: 1.6, peek: rand(3.5, 5), sink: 1.4,
+        };
+      }
+
+      function updateAndDrawKraken(t) {
+        if (!kraken) return;
+        const k = kraken;
+        let e = t - k.t0;
+        // shy: if the cursor gets close while it's peeking, it ducks early
+        if (e > k.rise && e < k.rise + k.peek && Math.hypot(mouse.x - k.x, mouse.y - (H - k.size)) < k.size * 1.4) {
+          k.t0 = t - k.rise - k.peek;
+          e = t - k.t0;
+        }
+        let v;
+        if (e < k.rise) v = easeOutBack(e / k.rise);
+        else if (e < k.rise + k.peek) v = 1;
+        else if (e < k.rise + k.peek + k.sink) v = 1 - easeInCubic((e - k.rise - k.peek) / k.sink);
+        else { kraken = null; return; }
+
+        const s = k.size, w = s, h = s * 1.25;
+        const peekT = Math.max(0, e - k.rise);
+        const look = Math.sin(peekT * 1.3) * (e > k.rise ? 1 : 0);  // eyes glance left / right
+        const blinking = e > k.rise && (peekT % 2.4) > 2.25;
+        const bob = Math.sin(t * 2) * 3 * v;
+        const [r, g, b] = k.color;
+
+        ctx.save();
+        ctx.translate(k.x, H + 12 - s * 1.45 * v + bob);
+        ctx.globalAlpha = 0.9;
+
+        // tentacles curling up on both sides
+        for (let i = 0; i < 4; i++) {
+          const side = i < 2 ? -1 : 1;
+          const inner = i % 2 === 0;
+          let px = side * w * (inner ? 0.25 : 0.42), py = h * 0.95;
+          let heading = -Math.PI / 2 + side * 0.25;
+          const segs = 12, len = s * (inner ? 1.0 : 1.3) / segs;
+          for (let j = 0; j < segs; j++) {
+            const p = j / segs;
+            heading += side * (0.12 + Math.sin(t * 1.8 + i * 1.7 + p * 3 + k.seed) * 0.06);
+            const nx = px + Math.cos(heading) * len, ny = py + Math.sin(heading) * len;
+            ctx.strokeStyle = shade(k.color, 0.85);
+            ctx.lineWidth = s * 0.2 * (1 - p * 0.8);
+            ctx.lineCap = "round";
+            ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(nx, ny); ctx.stroke();
+            if (j % 2 === 1 && j < segs - 2) { // suckers
+              ctx.fillStyle = `rgba(255, 220, 240, 0.55)`;
+              ctx.beginPath(); ctx.arc(nx, ny, s * 0.03 * (1 - p * 0.6) + 0.8, 0, TAU); ctx.fill();
+            }
+            px = nx; py = ny;
+          }
+        }
+
+        // head (mantle)
+        const body = ctx.createLinearGradient(0, 0, 0, h);
+        body.addColorStop(0, `rgb(${Math.min(r + 50, 255)},${Math.min(g + 50, 255)},${Math.min(b + 50, 255)})`);
+        body.addColorStop(1, shade(k.color, 0.8));
+        ctx.fillStyle = body;
+        ctx.beginPath();
+        ctx.moveTo(-w * 0.5, h * 1.2);
+        ctx.bezierCurveTo(-w * 0.62, h * 0.3, -w * 0.32, 0, 0, 0);
+        ctx.bezierCurveTo(w * 0.32, 0, w * 0.62, h * 0.3, w * 0.5, h * 1.2);
+        ctx.closePath();
+        ctx.fill();
+
+        // spots + shine
+        ctx.fillStyle = "rgba(255, 255, 255, 0.16)";
+        for (const [sx, sy, sr] of [[-0.18, 0.22, 0.07], [0.15, 0.3, 0.05], [0.02, 0.12, 0.04]]) {
+          ctx.beginPath(); ctx.arc(sx * w, sy * h, sr * w, 0, TAU); ctx.fill();
+        }
+        ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+        ctx.beginPath(); ctx.ellipse(-w * 0.2, h * 0.14, w * 0.09, h * 0.05, -0.6, 0, TAU); ctx.fill();
+
+        // big eyes
+        const ey = h * 0.6, ex = w * 0.2, erx = w * 0.14, ery = w * 0.16;
+        for (const sd of [-1, 1]) {
+          const cx = sd * ex;
+          if (blinking) {
+            ctx.strokeStyle = "#1e1033"; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(cx, ey, erx * 0.8, 0.1 * Math.PI, 0.9 * Math.PI); ctx.stroke();
+            continue;
+          }
+          ctx.fillStyle = "#fff";
+          ctx.beginPath(); ctx.ellipse(cx, ey, erx, ery, 0, 0, TAU); ctx.fill();
+          ctx.fillStyle = "#1e1033";
+          ctx.beginPath(); ctx.arc(cx + look * erx * 0.4, ey + ery * 0.1, erx * 0.55, 0, TAU); ctx.fill();
+          ctx.fillStyle = "#fff";
+          ctx.beginPath(); ctx.arc(cx + look * erx * 0.4 + erx * 0.2, ey - ery * 0.15, erx * 0.18, 0, TAU); ctx.fill();
+        }
+        // blush + little smile
+        ctx.fillStyle = "rgba(255, 182, 213, 0.55)";
+        for (const sd of [-1, 1]) {
+          ctx.beginPath(); ctx.ellipse(sd * w * 0.33, ey + ery * 1.2, erx * 0.6, erx * 0.32, 0, 0, TAU); ctx.fill();
+        }
+        ctx.strokeStyle = "#1e1033"; ctx.lineWidth = 2; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.arc(0, ey + ery * 1.05, erx * 0.45, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+
+        ctx.restore();
+      }
+
       /* ---------- loop ---------- */
       function render(t, f) {
         drawWater(t, f);
+        if (f) {
+          lastT = t;
+          if (nextFish === null) {
+            nextFish = t + SETTINGS.firstFishAfter;
+            nextKraken = t + SETTINGS.firstKrakenAfter;
+          }
+          if (t > nextFish) { spawnSchool(); nextFish = t + rand(...SETTINGS.fishEvery); }
+          if (t > nextKraken) { spawnKraken(t); nextKraken = t + rand(...SETTINGS.krakenEvery); }
+        }
+        updateAndDrawKraken(t);
+        updateAndDrawSchools(t, f);
         for (const j of jellies) {
           if (f) updateJelly(j, t, f);
           drawJelly(j, t);
         }
       }
+
+      // summon them from the browser console: ocean.fish() / ocean.kraken()
+      window.ocean = { fish: () => spawnSchool(), kraken: () => spawnKraken(lastT) };
 
       let last = performance.now();
       function frame(now) {
