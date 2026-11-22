@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lost at sea | JR Waughon</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0b1120">
+  <!-- GitHub Pages serves this file for ANY missing URL, so every link here is absolute (starts with /) -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="/css/404.css">
+</head>
+<body>
+
+  <canvas id="ocean" aria-hidden="true"></canvas>
+
+  <main class="lost">
+    <svg class="kraken" viewBox="0 0 260 260" role="img" aria-label="A cute purple kraken holding up a sign that says: lost?">
+      <defs>
+        <linearGradient id="krakenBody" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#e9d5ff"/>
+          <stop offset=".35" stop-color="#c084fc"/>
+          <stop offset="1" stop-color="#9333ea"/>
+        </linearGradient>
+      </defs>
+
+      <!-- the sign (behind the head) -->
+      <g class="k-sign">
+        <rect x="128" y="74" width="7" height="80" rx="3.5" fill="#a16207"/>
+        <rect x="76" y="18" width="110" height="60" rx="12" fill="#fde68a" stroke="#a16207" stroke-width="4"/>
+        <text x="131" y="58" text-anchor="middle" font-family="system-ui, Segoe UI, sans-serif" font-weight="800" font-size="27" fill="#0b1120">lost?</text>
+      </g>
+
+      <!-- curly tentacles -->
+      <g fill="none" stroke="#a855f7" stroke-width="13" stroke-linecap="round">
+        <path d="M88 206 C60 214 38 198 46 180 C52 168 70 172 66 184"/>
+        <path d="M108 214 C100 238 80 246 70 236"/>
+        <path d="M152 214 C160 238 180 246 190 236"/>
+        <path d="M174 204 C202 212 222 196 214 178 C208 166 190 170 194 182"/>
+      </g>
+
+      <!-- head -->
+      <path d="M78 220 C66 150 90 108 131 108 C172 108 196 150 184 220 Z" fill="url(#krakenBody)"/>
+      <ellipse cx="106" cy="132" rx="9" ry="5" fill="#fff" opacity=".45" transform="rotate(-35 106 132)"/>
+      <circle cx="160" cy="140" r="5" fill="#fff" opacity=".18"/>
+      <circle cx="150" cy="124" r="3" fill="#fff" opacity=".18"/>
+
+      <!-- the tentacle holding the sign (in front of the head) -->
+      <path d="M180 196 C214 178 206 132 140 128" fill="none" stroke="#a855f7" stroke-width="13" stroke-linecap="round"/>
+      <circle cx="137" cy="128" r="8" fill="#a855f7"/>
+
+      <!-- face -->
+      <ellipse cx="114" cy="168" rx="13" ry="15" fill="#fff"/>
+      <ellipse cx="150" cy="168" rx="13" ry="15" fill="#fff"/>
+      <g class="k-pupils">
+        <circle cx="115" cy="163" r="7" fill="#1e1033"/>
+        <circle cx="151" cy="163" r="7" fill="#1e1033"/>
+        <circle cx="117.5" cy="160" r="2.5" fill="#fff"/>
+        <circle cx="153.5" cy="160" r="2.5" fill="#fff"/>
+      </g>
+      <ellipse cx="98" cy="188" rx="8" ry="4.5" fill="#f9a8d4" opacity=".75"/>
+      <ellipse cx="166" cy="188" rx="8" ry="4.5" fill="#f9a8d4" opacity=".75"/>
+      <ellipse cx="132" cy="194" rx="4" ry="5" fill="#3b0764"/>
+    </svg>
+
+    <p class="code">404</p>
+    <h1>You've drifted too deep.</h1>
+    <p>This page doesn't exist, or it swam off somewhere. Let's get you back to the surface.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="/">Swim back home</a>
+      <a class="btn btn-outline" href="/resume/">View resume</a>
+    </div>
+  </main>
+
+  <script>
+    // fewer, friendlier visitors down here
+    window.OCEAN_SETTINGS = { firstFishAfter: 2, firstKrakenAfter: 6, krakenEvery: [15, 25], maxJellies: 7 };
+  </script>
+  <script src="/js/ocean.js"></script>
+</body>
+</html>
