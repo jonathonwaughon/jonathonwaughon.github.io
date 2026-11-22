@@ -390,3 +390,56 @@ h3:target, h4:target { animation: targetFlash 1.6s ease-out; border-radius: 6px;
   }
   .js .reveal { opacity: 1; translate: none; }
 }
+
+/* =========================================================
+   FUN FACT CARDS (spawned by setupFunFacts in js/home.js)
+   The outer element floats up + sways; the inner one is the
+   card itself (so popping it doesn't reset the float).
+   ========================================================= */
+.fun-fact {
+  position: fixed; bottom: -140px; z-index: 12;
+  width: min(290px, calc(100vw - 32px));
+  animation:
+    factFloat 18s linear forwards,
+    factSway 3.6s ease-in-out infinite alternate;
+}
+.fun-fact:hover, .fun-fact:focus-within { animation-play-state: paused; }
+.ff-inner {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 12px 12px 14px;
+  border-radius: 16px;
+  background: rgba(17, 26, 46, 0.85);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 14px 34px -14px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  font-size: 14px; line-height: 1.45; color: var(--text);
+  transition: border-color .2s;
+}
+.fun-fact:hover .ff-inner { border-color: var(--green); }
+.ff-icon { font-size: 18px; line-height: 1.2; }
+.ff-inner p { flex: 1; }
+.ff-inner strong { color: #7dd3fc; }
+.ff-close {
+  flex: none; width: 24px; height: 24px; margin: -2px -2px 0 0;
+  display: grid; place-items: center;
+  border: 0; border-radius: 6px; background: none;
+  color: var(--muted); font-size: 12px; cursor: pointer;
+}
+.ff-close:hover { color: var(--text); background: rgba(255, 255, 255, 0.08); }
+.fun-fact.popping .ff-inner { animation: factPop .28s ease-out forwards; }
+
+@keyframes factFloat {
+  0%   { transform: translateY(0); opacity: 0; }
+  6%   { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateY(calc(-100vh - 160px)); opacity: 0; }
+}
+@keyframes factSway {
+  from { translate: var(--sway, 16px) 0; }
+  to   { translate: calc(var(--sway, 16px) * -1) 0; }
+}
+@keyframes factPop { to { scale: 1.12; opacity: 0; } }
+@keyframes factFadeIn { from { opacity: 0; } }
+
+/* reduced motion: no floating, just appears near the bottom */
+.fun-fact.still { bottom: 20px; animation: factFadeIn .3s ease-out !important; }

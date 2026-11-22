@@ -28,6 +28,9 @@
   <script>document.documentElement.classList.add("js");</script>
   <link rel="stylesheet" href="../css/resume.css">
   <link rel="stylesheet" href="../css/sidebar.css">
+  <link rel="stylesheet" href="../css/calm.css">
+  <!-- calm mode switch; runs early so a calm page never flashes the animated one -->
+  <script src="../js/calm.js"></script>
 </head>
 <!-- data-root = path from this page to the site root (used by the shared sidebar) -->
 <body class="has-sidebar" data-root="../">
@@ -44,6 +47,7 @@
         Home
       </a>
       <span class="logo grad">JR Waughon</span>
+      <span data-calm-slot></span><!-- the calm mode switch goes here -->
       <button class="btn btn-primary" type="button" data-print>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
         Save as PDF

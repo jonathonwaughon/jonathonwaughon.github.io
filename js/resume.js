@@ -1,4 +1,6 @@
-const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+// reduced motion, or calm mode on (js/calm.js): skip the count-up and scroll reveals
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  || document.documentElement.classList.contains("calm");
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
 /* ---------- Skill level dots + labels ---------- */

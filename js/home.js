@@ -25,10 +25,13 @@ if ("IntersectionObserver" in window) {
 /* ---------- Click ripple ---------- */
 const RIPPLE_TARGETS = ".btn, .row, .caret, .menu-btn, footer .links a, .tile, .socials a";
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+// calm mode (js/calm.js): the top-right switch that turns all the extras off
+const isCalm = () => document.documentElement.classList.contains("calm");
+const stillPage = () => reduceMotion.matches || isCalm();
 document.querySelectorAll(RIPPLE_TARGETS).forEach((el) => el.classList.add("ripple-host"));
 
 document.addEventListener("pointerdown", (e) => {
-  if (reduceMotion.matches) return;
+  if (stillPage()) return;
   const host = e.target.closest(RIPPLE_TARGETS);
   if (!host) return;
   const r = host.getBoundingClientRect();
@@ -48,6 +51,7 @@ document.addEventListener("pointerdown", (e) => {
    HOMEPAGE TYPING EFFECTS — edit the words / code below.
    ========================================================= */
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const whileCalm = async () => { while (isCalm()) await sleep(500); }; // pause looping effects in calm mode
 
 // "I ___ ___" comes from content/home.json → what_i_do.
 // This is only used if that file can't be loaded (e.g. opening index.html straight from disk).
@@ -73,25 +77,25 @@ const FILES = [
   {
     name: "education.py", icon: "py",
     code: [
-      ["c", "# filler for now: swap in the real details\n"],
+      ["c", "# my most recent education\n"],
       ["k", "class "], ["v", "Education"], ["p", ":\n"],
-      ["x", "    school"], ["p", " = "], ["s", '"University Name"'], ["p", "\n"],
-      ["x", "    degree"], ["p", " = "], ["s", '"B.S. in Something"'], ["p", "\n"],
+      ["x", "    school"], ["p", " = "], ["s", '"Cornell College"'], ["p", "\n"],
+      ["x", "    degree"], ["p", " = "], ["s", '"B.A. in Finance and Computer Science"'], ["p", "\n"],
       ["x", "    graduating"], ["p", " = "], ["n", "2027"], ["p", "\n"],
-      ["x", "    coursework"], ["p", " = ["], ["s", '"Finance"'], ["p", ", "], ["s", '"Statistics"'], ["p", "]\n"],
-      ["x", "    gpa"], ["p", " = "], ["k", "None"], ["p", "  "], ["c", "# coming soon"],
+      ["x", "    existing_degrees"], ["p", " = ["], ["s", '"Associate of Arts (2025)"'], ["p", ", "], ["s", '"Highschool Diploma (2025)"'], ["p", "]\n"],
+      ["x", "    gpa"], ["p", " = "], ["k", "3.9"], ["p", "  "], ["c", "# yes this is a real GPA, and yes I am proud of it\n"],
     ],
   },
 ];
 
-async function loadHomeConfig() {
-  try {
-    const res = await fetch("content/home.json", { cache: "no-cache" });
-    if (!res.ok) throw new Error(res.status);
-    return await res.json();
-  } catch {
-    return null;
+let homeConfigPromise = null;
+function loadHomeConfig() { // fetched once, shared by everything that reads home.json
+  if (!homeConfigPromise) {
+    homeConfigPromise = fetch("content/home.json", { cache: "no-cache" })
+      .then((res) => (res.ok ? res.json() : null))
+      .catch(() => null);
   }
+  return homeConfigPromise;
 }
 
 const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -147,6 +151,7 @@ async function rotateWhatIDo() {
       if (reduceMotion.matches) return; // reduced motion: one static line
       await sleep(2600);
     } else {
+      await whileCalm();
       await eraseFrom(itemEl);
       if (verb !== verbEl.textContent) {
         await eraseFrom(verbEl, 55);
@@ -159,6 +164,7 @@ async function rotateWhatIDo() {
     }
 
     for (const item of sequence.slice(1)) {
+      await whileCalm();
       await eraseFrom(itemEl);
       await sleep(250);
       await typeInto(itemEl, item);
@@ -233,7 +239,7 @@ function setupCodeTabs() {
     const end = caret();
     codeEl.append(end);
 
-    if (!animate || reduceMotion.matches || alreadyTyped.has(file.name)) {
+    if (!animate || stillPage() || alreadyTyped.has(file.name)) {
       file.code.forEach(([cls, text]) => codeEl.insertBefore(token(cls, text), end));
       alreadyTyped.add(file.name);
       return;
@@ -255,9 +261,102 @@ function setupCodeTabs() {
   markActive(0);
   codeEl.append(caret());
   const startRun = run;
-  if (reduceMotion.matches) return showFile(0, false);
+  // calm mode switched on mid-typing: finish the current file instantly
+  document.addEventListener("calmchange", () => {
+    const current = tabs.findIndex((t) => t.classList.contains("active"));
+    if (isCalm() && current >= 0 && !alreadyTyped.has(FILES[current].name)) showFile(current, false);
+  });
+  if (stillPage()) return showFile(0, false);
   sleep(1000).then(() => { if (run === startRun) showFile(0, true); });
+}
+
+/* =========================================================
+   FUN FACTS: every so often a little card floats up saying
+   "Fun fact: ...", picked from `fun_facts` in content/home.json.
+   Hover a card to pause it; click ✕ to pop it.
+   Try it from the browser console: funFact()
+   ========================================================= */
+const FUN_FACTS = {
+  firstAfter: 12,     // seconds after the page loads
+  every: [30, 55],    // seconds between cards (random in this range)
+  stillFor: 9,        // reduced motion: seconds a (non-floating) card stays up
+};
+
+async function setupFunFacts() {
+  const config = await loadHomeConfig();
+  const raw = config && (config.fun_facts || config.funFacts || config["fun facts"]);
+  const facts = (Array.isArray(raw) ? raw : [])
+    .filter((f) => typeof f === "string" && f.trim())
+    .map((f) => f.trim().replace(/^fun fact:\s*/i, "")); // "Fun fact:" is added for you
+  if (!facts.length) return;
+
+  // go through every fact once (shuffled) before repeating any
+  let queue = [];
+  let last = null;
+  const nextFact = () => {
+    if (!queue.length) {
+      queue = shuffled(facts);
+      if (queue.length > 1 && queue.at(-1) === last) queue.unshift(queue.pop());
+    }
+    return (last = queue.pop());
+  };
+
+  const between = () => (FUN_FACTS.every[0] + Math.random() * (FUN_FACTS.every[1] - FUN_FACTS.every[0])) * 1000;
+  const tick = () => {
+    if (document.hidden || isCalm() || document.querySelector(".fun-fact")) {
+      setTimeout(tick, 4000); // wait until the tab is visible and the last card is gone
+      return;
+    }
+    spawnFunFact(nextFact());
+    setTimeout(tick, between());
+  };
+  setTimeout(tick, FUN_FACTS.firstAfter * 1000);
+  window.funFact = () => spawnFunFact(nextFact());
+  document.addEventListener("calmchange", () => {
+    if (isCalm()) document.querySelectorAll(".fun-fact").forEach((c) => c.remove());
+  });
+}
+
+function spawnFunFact(text) {
+  const card = document.createElement("div");
+  card.className = "fun-fact";
+  card.setAttribute("role", "note");
+  card.innerHTML = `
+    <div class="ff-inner">
+      <span class="ff-icon" aria-hidden="true">🫧</span>
+      <p><strong>Fun fact:</strong> <span class="ff-text"></span></p>
+      <button class="ff-close" type="button" aria-label="Dismiss fun fact">✕</button>
+    </div>`;
+  card.querySelector(".ff-text").textContent = text;
+
+  // float up near the left or right edge of the content, so it covers less
+  const mainBox = (document.querySelector("main") || document.body).getBoundingClientRect();
+  const width = Math.min(290, window.innerWidth - 32);
+  const minX = Math.max(16, mainBox.left + 16);
+  const maxX = Math.max(minX, window.innerWidth - width - 16);
+  const nearRight = Math.random() < 0.5;
+  const nudge = Math.random() * Math.min(80, (maxX - minX) / 2);
+  card.style.left = (nearRight ? maxX - nudge : minX + nudge) + "px";
+  card.style.setProperty("--sway", (Math.random() < 0.5 ? -1 : 1) * (10 + Math.random() * 18) + "px");
+
+  const remove = () => card.remove();
+  card.querySelector(".ff-close").addEventListener("click", () => {
+    card.classList.add("popping");
+    card.querySelector(".ff-inner").addEventListener("animationend", remove, { once: true });
+    setTimeout(remove, 400); // in case the animation never runs (hidden tab, animations off)
+  });
+
+  if (reduceMotion.matches) {
+    card.classList.add("still"); // no floating: fade in at the bottom, leave after a while
+    let timer = setTimeout(remove, FUN_FACTS.stillFor * 1000);
+    card.addEventListener("mouseenter", () => clearTimeout(timer));
+    card.addEventListener("mouseleave", () => { timer = setTimeout(remove, 3000); });
+  } else {
+    card.addEventListener("animationend", (e) => { if (e.animationName === "factFloat") remove(); });
+  }
+  document.body.appendChild(card);
 }
 
 rotateWhatIDo();
 setupCodeTabs();
+setupFunFacts();

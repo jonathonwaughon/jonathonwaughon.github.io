@@ -79,6 +79,9 @@ main:focus { outline: none; }
 .btn-ghost { background: transparent; border-color: var(--border); color: var(--text); }
 .btn-ghost:hover { border-color: var(--blue); color: var(--text); }
 .toolbar .btn { margin-left: auto; }
+.toolbar .calm-toggle { margin-left: auto; }          /* calm switch sits just left of Save as PDF */
+.toolbar .calm-toggle + .btn { margin-left: 0; }
+.toolbar .btn { white-space: nowrap; }
 
 /* ---------- Layout ---------- */
 .wrap { max-width: 960px; margin: 0 auto; padding: 40px 16px 80px; }

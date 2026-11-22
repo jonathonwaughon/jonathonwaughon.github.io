@@ -21,8 +21,9 @@
     firstKrakenAfter: 18,
 
     cursorBubbles: true,    // little bubbles trail the mouse over empty background
-    bubbleSpacing: 16,      // px the mouse must move between bubbles (bigger = fewer)
-    maxBubbles: 60,
+    bubbleSpacing: 34,      // px the mouse must move between bubbles (bigger = fewer)
+    maxBubbles: 24,
+    bubbleOpacity: 0.45,    // 0–1, how visible the cursor bubbles are
   };
   // a page can tweak any of these by setting window.OCEAN_SETTINGS before loading this script
   Object.assign(SETTINGS, window.OCEAN_SETTINGS || {});
@@ -32,7 +33,7 @@
     "a", "button", "input", "textarea", "select", "label", "summary", "[role='tab']",
     "p", "h1", "h2", "h3", "h4", "li", "pre", "code", "img", "svg",
     ".card", ".tile", ".code-card", ".avatar-wrap", ".status", ".socials", ".cta",
-    ".sidebar", ".topbar", ".scrim", ".grid",
+    ".sidebar", ".topbar", ".scrim", ".grid", ".fun-fact",
   ].join(",");
 
   const canvas = document.getElementById("ocean");
@@ -43,6 +44,8 @@
   const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches || saveData;
   // lighter scene on low-end devices (few CPU cores)
   const lowEnd = (navigator.hardwareConcurrency || 8) <= 4;
+  // calm mode (js/calm.js) hides the canvas and stops the loop entirely
+  const isCalm = () => document.documentElement.classList.contains("calm");
   const rand = (a, b) => a + Math.random() * (b - a);
   const TAU = Math.PI * 2;
 
@@ -480,19 +483,17 @@
 
   /* ---------- cursor bubbles ---------- */
   function maybeBlowBubble(e) {
-    if (!SETTINGS.cursorBubbles || still || e.pointerType !== "mouse") return;
+    if (!SETTINGS.cursorBubbles || still || isCalm() || e.pointerType !== "mouse") return;
     if (e.buttons !== 0) { lastBubbleAt = null; return; }           // dragging / selecting text
     if (e.target instanceof Element && e.target.closest(NO_BUBBLES_OVER)) { lastBubbleAt = null; return; }
     if (lastBubbleAt && Math.hypot(e.clientX - lastBubbleAt.x, e.clientY - lastBubbleAt.y) < SETTINGS.bubbleSpacing) return;
     lastBubbleAt = { x: e.clientX, y: e.clientY };
-    const count = Math.random() < 0.25 ? 2 : 1;
-    for (let i = 0; i < count && bubbles.length < SETTINGS.maxBubbles; i++) {
-      bubbles.push({
-        x: e.clientX + rand(-6, 6), y: e.clientY + rand(-4, 4),
-        r: rand(1.8, 4.5), vy: rand(-1.2, -0.6),
-        wobble: rand(0, TAU), age: 0, life: rand(55, 95), // frames
-      });
-    }
+    if (bubbles.length >= SETTINGS.maxBubbles) return;
+    bubbles.push({
+      x: e.clientX + rand(-5, 5), y: e.clientY + rand(-3, 3),
+      r: rand(1.4, 3.2), vy: rand(-1, -0.5),
+      wobble: rand(0, TAU), age: 0, life: rand(40, 70), // frames
+    });
   }
 
   function updateAndDrawBubbles(t, f) {
@@ -505,7 +506,7 @@
       if (p >= 1) return false;
       const r = b.r * (1 + p * 0.5);
       const a = p < 0.15 ? p / 0.15 : 1 - Math.pow((p - 0.15) / 0.85, 2); // fade in, then out
-      ctx.globalAlpha = a * 0.75;
+      ctx.globalAlpha = a * SETTINGS.bubbleOpacity;
       ctx.fillStyle = "rgba(186, 230, 253, 0.12)";
       ctx.strokeStyle = "rgba(186, 230, 253, 0.8)";
       ctx.lineWidth = 1;
@@ -542,12 +543,25 @@
   window.ocean = { fish: () => spawnSchool(), kraken: () => spawnKraken(lastT) };
 
   let last = performance.now();
+  let running = false;
   function frame(now) {
+    if (isCalm()) { running = false; return; } // calm mode: stop until it's switched off
     const f = Math.min((now - last) / 16.67, 3); // frame-rate independent, capped after tab switches
     last = now;
     render(now / 1000, f);
     requestAnimationFrame(frame); // browsers pause this automatically in hidden tabs
   }
+  function start() {
+    if (still) { render(0, 0); return; } // reduced motion: one calm, static scene
+    if (running || isCalm()) return;
+    running = true;
+    last = performance.now();
+    requestAnimationFrame(frame);
+  }
+  document.addEventListener("calmchange", () => {
+    bubbles = [];
+    if (!isCalm()) { resize(); start(); }
+  });
 
   window.addEventListener("resize", () => { resize(); if (still) render(0, 0); });
   window.addEventListener("pointermove", (e) => {
@@ -557,6 +571,5 @@
   document.addEventListener("pointerleave", () => { mouse.x = mouse.y = -9999; });
 
   resize();
-  if (still) render(0, 0);           // reduced motion: one calm, static scene
-  else requestAnimationFrame(frame);
+  start();
 })();

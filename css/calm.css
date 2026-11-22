@@ -1,0 +1,63 @@
+/* =========================================================
+   CALM MODE (toggled by js/calm.js, which adds .calm to <html>)
+   ========================================================= */
+
+/* ---------- the switch ---------- */
+.calm-toggle {
+  position: fixed; top: 12px; right: 12px; z-index: 30;
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 32px; padding: 0 8px 0 12px;
+  border: 1px solid #1e2a44; border-radius: 999px;
+  background: rgba(11, 17, 32, 0.8);
+  backdrop-filter: blur(8px);
+  color: #94a3b8; font: 600 13px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.calm-toggle:hover { color: #e2e8f0; border-color: #38bdf8; }
+.calm-toggle.in-slot { position: static; }
+.calm-track {
+  position: relative; width: 30px; height: 18px; border-radius: 999px;
+  background: #1e2a44; transition: background .2s;
+}
+.calm-knob {
+  position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%;
+  background: #94a3b8; transition: transform .2s, background .2s;
+}
+.calm-toggle[aria-checked="true"] { color: #e2e8f0; }
+.calm-toggle[aria-checked="true"] .calm-track { background: #34d399; }
+.calm-toggle[aria-checked="true"] .calm-knob { transform: translateX(12px); background: #0b1120; }
+/* tight toolbars on phones (the resume): just the switch, no word */
+@media (max-width: 560px) {
+  .calm-toggle.in-slot { padding: 0 6px; }
+  .calm-toggle.in-slot .calm-label { display: none; }
+}
+@media print { .calm-toggle { display: none !important; } }
+
+/* ---------- what calm mode removes ---------- */
+html.calm { scroll-behavior: auto; }
+
+/* the ocean, floating cards and decorative glows */
+html.calm #ocean,
+html.calm .fun-fact,
+html.calm .ripple,
+html.calm .hero::before { display: none !important; }
+
+/* no motion at all (the switch itself keeps its little slide) */
+html.calm *:not(.calm-track):not(.calm-knob),
+html.calm *::before,
+html.calm *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* things that wait to be revealed just show up */
+html.calm .reveal { opacity: 1 !important; translate: none !important; }
+
+/* no hover lifts */
+html.calm .btn:hover, html.calm .btn:active,
+html.calm .card:hover, html.calm .tile:hover,
+html.calm footer .links a:hover { transform: none !important; }
+
+/* the typing cursor stays put instead of blinking */
+html.calm .cursor, html.calm .type-caret { opacity: 1; }
