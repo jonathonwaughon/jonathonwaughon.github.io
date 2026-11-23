@@ -101,6 +101,18 @@ main { position: relative; z-index: 1; }
 .intro { color: var(--muted); font-size: 17px; max-width: 480px; margin-bottom: 28px; }
 .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 26px; }
 .cta .btn { margin: 0; }
+/* small pill-shaped button that sits inside a sentence (the intro's "here →") */
+.inline-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 1px 10px; border-radius: 999px;
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  background: rgba(56, 189, 248, 0.1);
+  color: var(--blue); font-weight: 600; font-size: .92em; line-height: 1.5;
+  transition: background .2s, border-color .2s, color .2s, transform .15s;
+}
+.inline-btn:hover { color: var(--green); border-color: var(--green); background: rgba(52, 211, 153, 0.1); transform: translateY(-1px); }
+.inline-btn span { transition: translate .2s var(--ease-out, ease); }
+.inline-btn:hover span { translate: 3px 0; }
 .socials { display: flex; flex-wrap: wrap; gap: 10px; }
 .socials a {
   display: inline-flex; align-items: center; gap: 8px;
@@ -393,53 +405,44 @@ h3:target, h4:target { animation: targetFlash 1.6s ease-out; border-radius: 6px;
 
 /* =========================================================
    FUN FACT CARDS (spawned by setupFunFacts in js/home.js)
-   The outer element floats up + sways; the inner one is the
-   card itself (so popping it doesn't reset the float).
+   They drift up in the background: behind all the content,
+   smaller, hazier and slower, like they're far off in the water.
    ========================================================= */
 .fun-fact {
-  position: fixed; bottom: -140px; z-index: 12;
-  width: min(290px, calc(100vw - 32px));
+  position: fixed; bottom: -120px;
+  z-index: 0;                 /* same layer as the ocean (added after it), under <main> (z-index 1) */
+  width: min(220px, calc(100vw - 32px));
+  pointer-events: none;       /* purely scenery: never gets in the way of clicks */
+  scale: .9;
   animation:
-    factFloat 18s linear forwards,
-    factSway 3.6s ease-in-out infinite alternate;
+    factFloat 26s linear forwards,
+    factSway 4.5s ease-in-out infinite alternate;
 }
-.fun-fact:hover, .fun-fact:focus-within { animation-play-state: paused; }
 .ff-inner {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 12px 12px 12px 14px;
-  border-radius: 16px;
-  background: rgba(17, 26, 46, 0.85);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(56, 189, 248, 0.35);
-  box-shadow: 0 14px 34px -14px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  font-size: 14px; line-height: 1.45; color: var(--text);
-  transition: border-color .2s;
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 9px 12px;
+  border-radius: 14px;
+  background: rgba(17, 26, 46, 0.55);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  font-size: 12px; line-height: 1.45; color: #cbd5e1;
+  opacity: .55;                          /* on the inner card, since the float animates the outer opacity */
+  filter: blur(.6px) saturate(.7);
 }
-.fun-fact:hover .ff-inner { border-color: var(--green); }
-.ff-icon { font-size: 18px; line-height: 1.2; }
+.ff-icon { font-size: 14px; line-height: 1.2; }
 .ff-inner p { flex: 1; }
-.ff-inner strong { color: #7dd3fc; }
-.ff-close {
-  flex: none; width: 24px; height: 24px; margin: -2px -2px 0 0;
-  display: grid; place-items: center;
-  border: 0; border-radius: 6px; background: none;
-  color: var(--muted); font-size: 12px; cursor: pointer;
-}
-.ff-close:hover { color: var(--text); background: rgba(255, 255, 255, 0.08); }
-.fun-fact.popping .ff-inner { animation: factPop .28s ease-out forwards; }
+.ff-inner strong { color: #7dd3fc; font-weight: 600; }
 
 @keyframes factFloat {
   0%   { transform: translateY(0); opacity: 0; }
-  6%   { opacity: 1; }
-  88%  { opacity: 1; }
-  100% { transform: translateY(calc(-100vh - 160px)); opacity: 0; }
+  8%   { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { transform: translateY(calc(-100vh - 140px)); opacity: 0; }
 }
 @keyframes factSway {
-  from { translate: var(--sway, 16px) 0; }
-  to   { translate: calc(var(--sway, 16px) * -1) 0; }
+  from { translate: var(--sway, 12px) 0; }
+  to   { translate: calc(var(--sway, 12px) * -1) 0; }
 }
-@keyframes factPop { to { scale: 1.12; opacity: 0; } }
 @keyframes factFadeIn { from { opacity: 0; } }
 
-/* reduced motion: no floating, just appears near the bottom */
+/* reduced motion: no floating, just fades in near the bottom for a while */
 .fun-fact.still { bottom: 20px; animation: factFadeIn .3s ease-out !important; }

@@ -3,35 +3,83 @@ const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").match
   || document.documentElement.classList.contains("calm");
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
-/* ---------- Skill level dots + labels ---------- */
+/* ---------- Skills: built from content/skills.json ---------- */
 const skillNames = {};
-$$(".skill").forEach((btn) => {
-  skillNames[btn.dataset.skill] = btn.textContent.trim();
-  btn.setAttribute("aria-pressed", "false");
-  const lvl = document.createElement("span");
-  lvl.className = "lvl";
-  lvl.setAttribute("aria-label", `${btn.dataset.level} out of 5`);
-  for (let i = 1; i <= 5; i++) {
-    const d = document.createElement("i");
-    if (i <= +btn.dataset.level) d.className = "on";
-    lvl.appendChild(d);
+
+async function loadSkills() {
+  const url = (document.body.dataset.root || "") + "content/skills.json";
+  try {
+    const res = await fetch(url, { cache: "no-cache" });
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    return Array.isArray(data.groups) ? data.groups : [];
+  } catch (err) {
+    console.warn("Couldn't load " + url + " (opening the page from disk? use a local server)", err);
+    return null;
   }
-  btn.appendChild(lvl);
-});
+}
+
+function renderSkills(groups) {
+  const box = document.getElementById("skillGroups");
+  if (!box) return;
+  box.removeAttribute("aria-busy");
+  if (!groups) {
+    box.innerHTML = '<p class="skills-error">Skills couldn\'t load right now.</p>';
+    return;
+  }
+  groups.forEach((group, gi) => {
+    const card = document.createElement("div");
+    card.className = "card skill-group reveal";
+    card.style.setProperty("--d", gi * 90 + "ms");
+    const h3 = document.createElement("h3");
+    h3.textContent = group.name || "";
+    const list = document.createElement("div");
+    list.className = "skill-list";
+    (group.skills || []).forEach((skill) => {
+      if (!skill || !skill.name) return;
+      const id = skill.id || skill.name.toLowerCase().replace(/[^a-z0-9]+/g, "");
+      const level = Math.max(0, Math.min(5, Math.round(+skill.level || 0)));
+      skillNames[id] = skill.name;
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "skill";
+      btn.dataset.skill = id;
+      btn.setAttribute("aria-pressed", "false");
+      btn.textContent = skill.name;
+      if (level) { // level dots (1 to 5); leave "level" out to hide them
+        const lvl = document.createElement("span");
+        lvl.className = "lvl";
+        lvl.setAttribute("aria-label", `${level} out of 5`);
+        for (let i = 1; i <= 5; i++) {
+          const d = document.createElement("i");
+          if (i <= level) d.className = "on";
+          lvl.appendChild(d);
+        }
+        btn.appendChild(lvl);
+      }
+      list.appendChild(btn);
+    });
+    card.append(h3, list);
+    box.appendChild(card);
+  });
+}
 
 /* ---------- Auto tags on jobs & projects (from data-skills) ---------- */
-$$("[data-skills]").forEach((item) => {
-  const box = item.querySelector(".tags");
-  if (!box) return;
-  item.dataset.skills.split(",").forEach((key) => {
-    const t = document.createElement("button");
-    t.type = "button";
-    t.className = "tag";
-    t.dataset.skill = key.trim();
-    t.textContent = skillNames[key.trim()] || key.trim();
-    box.appendChild(t);
+function addTags() {
+  $$("[data-skills]").forEach((item) => {
+    const box = item.querySelector(".tags");
+    if (!box) return;
+    item.dataset.skills.split(",").map((k) => k.trim()).filter(Boolean).forEach((key) => {
+      const t = document.createElement("button");
+      t.type = "button";
+      t.className = "tag";
+      t.dataset.skill = key;
+      t.textContent = skillNames[key] || key;
+      box.appendChild(t);
+    });
   });
-});
+}
 
 /* ---------- Skill filter: highlight where a skill was used ---------- */
 let activeSkill = null;
@@ -105,15 +153,15 @@ $$("[data-count]").forEach((el) => {
 });
 
 /* ---------- Scroll reveal ---------- */
-const reveals = $$(".reveal");
-if ("IntersectionObserver" in window && !reduceMotion) {
-  const io = new IntersectionObserver((entries) => entries.forEach((en) => {
-    if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
-  }), { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
-  reveals.forEach((el) => io.observe(el));
-} else {
-  reveals.forEach((el) => el.classList.add("in"));
+const io = "IntersectionObserver" in window && !reduceMotion
+  ? new IntersectionObserver((entries) => entries.forEach((en) => {
+      if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+    }), { threshold: 0.12, rootMargin: "0px 0px -40px 0px" })
+  : null;
+function reveal(els) {
+  els.forEach((el) => (io ? io.observe(el) : el.classList.add("in")));
 }
+reveal($$(".reveal"));
 
 /* ---------- Timeline line draws as you scroll ---------- */
 const tWrap = document.querySelector(".timeline-wrap");
@@ -133,3 +181,11 @@ window.addEventListener("scroll", onScroll, { passive: true });
 window.addEventListener("resize", onScroll);
 tWrap.addEventListener("toggle", onScroll, true); // expanding a job changes the height
 drawTimeline();
+
+/* ---------- Start: skills come from JSON, then tags + reveals ---------- */
+loadSkills().then((groups) => {
+  renderSkills(groups);
+  addTags();
+  reveal($$("#skillGroups .reveal"));
+  onScroll(); // skills change the page height, so redraw the timeline
+});

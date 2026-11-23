@@ -1,0 +1,35 @@
+/* =========================================================
+   SCROLLBARS: a slim blue-to-green "bubble" thumb on deep water,
+   shared by every page (and any scrolling box inside one).
+   ========================================================= */
+
+/* Chrome, Edge, Safari, Opera */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.75), rgba(52, 211, 153, 0.75));
+  border: 2px solid transparent;   /* leaves a little water around the thumb */
+  background-clip: padding-box;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #7dd3fc, #6ee7b7);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:active { background: linear-gradient(180deg, #38bdf8, #34d399); background-clip: padding-box; }
+
+/* the page's own scrollbar sits on the dark background instead of the browser's grey */
+html::-webkit-scrollbar-track { background: #0b1120; border-left: 1px solid #1e2a44; }
+
+/* smaller boxes (sidebar, code card) get a thinner one */
+body *::-webkit-scrollbar { width: 6px; height: 6px; }
+body *::-webkit-scrollbar-thumb { border-width: 1px; }
+
+/* Firefox (only gets colors, not the gradient). Chromium browsers would let
+   these override the prettier styles above, so they're limited to Firefox. */
+@supports not selector(::-webkit-scrollbar) {
+  html { scrollbar-color: rgba(56, 189, 248, 0.7) #0b1120; scrollbar-width: thin; }
+  body * { scrollbar-color: rgba(56, 189, 248, 0.55) transparent; scrollbar-width: thin; }
+}

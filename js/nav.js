@@ -53,9 +53,11 @@ window.SITE_NAV = [
   {
     label: "Resume", href: "resume/",
     children: [
+      { label: "Education", href: "resume/#education" },
       { label: "Skills", href: "resume/#skills" },
       { label: "Experience", href: "resume/#experience" },
-      { label: "Projects", href: "resume/#projects" },
+      { label: "Leadership", href: "resume/#projects" },
     ],
   },
+  { label: "Reviews", href: "reviews/" },
 ];

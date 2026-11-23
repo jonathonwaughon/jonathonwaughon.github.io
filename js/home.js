@@ -80,10 +80,10 @@ const FILES = [
       ["c", "# my most recent education\n"],
       ["k", "class "], ["v", "Education"], ["p", ":\n"],
       ["x", "    school"], ["p", " = "], ["s", '"Cornell College"'], ["p", "\n"],
-      ["x", "    degree"], ["p", " = "], ["s", '"B.A. in Finance and Computer Science"'], ["p", "\n"],
+      ["x", "    degree"], ["p", " = "], ["s", '"B.A. in Finance/Computer Science"'], ["p", "\n"],
       ["x", "    graduating"], ["p", " = "], ["n", "2027"], ["p", "\n"],
-      ["x", "    existing_degrees"], ["p", " = ["], ["s", '"Associate of Arts (2025)"'], ["p", ", "], ["s", '"Highschool Diploma (2025)"'], ["p", "]\n"],
-      ["x", "    gpa"], ["p", " = "], ["k", "3.9"], ["p", "  "], ["c", "# yes this is a real GPA, and yes I am proud of it\n"],
+      ["x", "    existing_degrees"], ["p", " = ["], ["s", '"A.A. (2025)"'], ["p", "]\n"],
+      ["x", "    gpa"], ["p", " = "], ["k", "3.9"], ["p", "  "], ["c", "# yes i am proud of it\n"],
     ],
   },
 ];
@@ -273,7 +273,6 @@ function setupCodeTabs() {
 /* =========================================================
    FUN FACTS: every so often a little card floats up saying
    "Fun fact: ...", picked from `fun_facts` in content/home.json.
-   Hover a card to pause it; click ✕ to pop it.
    Try it from the browser console: funFact()
    ========================================================= */
 const FUN_FACTS = {
@@ -325,32 +324,23 @@ function spawnFunFact(text) {
     <div class="ff-inner">
       <span class="ff-icon" aria-hidden="true">🫧</span>
       <p><strong>Fun fact:</strong> <span class="ff-text"></span></p>
-      <button class="ff-close" type="button" aria-label="Dismiss fun fact">✕</button>
     </div>`;
   card.querySelector(".ff-text").textContent = text;
 
-  // float up near the left or right edge of the content, so it covers less
+  // drift up near the left or right edge of the content, where it's least hidden behind cards
   const mainBox = (document.querySelector("main") || document.body).getBoundingClientRect();
-  const width = Math.min(290, window.innerWidth - 32);
+  const width = Math.min(220, window.innerWidth - 32);
   const minX = Math.max(16, mainBox.left + 16);
   const maxX = Math.max(minX, window.innerWidth - width - 16);
   const nearRight = Math.random() < 0.5;
   const nudge = Math.random() * Math.min(80, (maxX - minX) / 2);
   card.style.left = (nearRight ? maxX - nudge : minX + nudge) + "px";
-  card.style.setProperty("--sway", (Math.random() < 0.5 ? -1 : 1) * (10 + Math.random() * 18) + "px");
+  card.style.setProperty("--sway", (Math.random() < 0.5 ? -1 : 1) * (8 + Math.random() * 12) + "px");
 
   const remove = () => card.remove();
-  card.querySelector(".ff-close").addEventListener("click", () => {
-    card.classList.add("popping");
-    card.querySelector(".ff-inner").addEventListener("animationend", remove, { once: true });
-    setTimeout(remove, 400); // in case the animation never runs (hidden tab, animations off)
-  });
-
   if (reduceMotion.matches) {
     card.classList.add("still"); // no floating: fade in at the bottom, leave after a while
-    let timer = setTimeout(remove, FUN_FACTS.stillFor * 1000);
-    card.addEventListener("mouseenter", () => clearTimeout(timer));
-    card.addEventListener("mouseleave", () => { timer = setTimeout(remove, 3000); });
+    setTimeout(remove, FUN_FACTS.stillFor * 1000);
   } else {
     card.addEventListener("animationend", (e) => { if (e.animationName === "factFloat") remove(); });
   }

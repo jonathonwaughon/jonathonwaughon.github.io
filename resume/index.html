@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Resume | JR Waughon</title>
-  <meta name="description" content="Resume of JR Waughon, analyst and developer: skills, experience, projects, and education.">
+  <meta name="description" content="Resume of Jonathon (JR) Waughon: finance and computer science student at Cornell College. Experience, skills, leadership, and education.">
   <meta name="theme-color" content="#0b1120">
   <link rel="canonical" href="https://jonathonwaughon.github.io/resume/">
 
@@ -18,7 +18,7 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="JR Waughon">
   <meta property="og:title" content="Resume | JR Waughon">
-  <meta property="og:description" content="Skills, experience, projects, and education. Interactive, with a printable PDF version.">
+  <meta property="og:description" content="Finance and computer science at Cornell College. Experience, skills, leadership, and education, with a printable PDF version.">
   <meta property="og:url" content="https://jonathonwaughon.github.io/resume/">
   <meta property="og:image" content="https://jonathonwaughon.github.io/assets/og-image.png">
   <meta property="og:image:width" content="1200">
@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="../css/resume.css">
   <link rel="stylesheet" href="../css/sidebar.css">
   <link rel="stylesheet" href="../css/calm.css">
+  <link rel="stylesheet" href="../css/scrollbar.css">
   <!-- calm mode switch; runs early so a calm page never flashes the animated one -->
   <script src="../js/calm.js"></script>
 </head>
@@ -56,9 +57,10 @@
   </header>
 
   <!-- =========================================================
-       RESUME CONTENT: everything below is placeholder text.
-       - data-skills="html,css,js" on a job/project links it to the
-         skill buttons (use the same keys as the data-skill values).
+       RESUME CONTENT (mirrors the Word resume).
+       - Skills live in content/skills.json.
+       - data-skills="python,sas" on a job/project links it to those
+         skills (use the same "id" values as in skills.json).
        - Copy a <li class="t-item"> or <article class="proj"> to add more.
        ========================================================= -->
   <main class="wrap" id="main">
@@ -68,12 +70,12 @@
       <div class="avatar"><span>JR</span></div>
       <div>
         <span class="status"><span class="dot"></span>Open to opportunities</span>
-        <h1>JR <span class="grad">Waughon</span></h1>
-        <p class="role">Developer · building web apps, games &amp; tools</p>
+        <h1>Jonathon <span class="grad">Waughon</span></h1>
+        <p class="role">Finance &amp; Computer Science · Cornell College, Class of 2027</p>
         <div class="chips">
-          <button class="chip" type="button" data-copy="you@example.com">
+          <button class="chip" type="button" data-copy="jonathonwaughon@proton.me">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
-            you@example.com
+            jonathonwaughon@proton.me
           </button>
           <a class="chip" href="https://github.com/jonathonwaughon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
@@ -85,15 +87,40 @@
           </a>
           <span class="chip">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-6.5-8-13a8 8 0 0 1 16 0c0 6.5-8 13-8 13z"/><circle cx="12" cy="9" r="3"/></svg>
-            City, State
+            Freeport, IL
           </span>
         </div>
       </div>
       <!-- data-count animates up to that number; anything else is shown as-is -->
       <div class="stats">
-        <div class="stat"><b class="grad" data-count="3">3</b><span>years coding</span></div>
-        <div class="stat"><b class="grad" data-count="10">10</b><span>projects built</span></div>
-        <div class="stat"><b class="grad">∞</b><span>cups of coffee</span></div>
+        <div class="stat"><b class="grad">3.9</b><span>GPA</span></div>
+        <div class="stat"><b class="grad">$190K</b><span>club portfolio managed</span></div>
+        <div class="stat"><b class="grad">13h → 5h</b><span>risk model run time</span></div>
+      </div>
+    </section>
+
+    <!-- Education: each <li> in .edu-points shows as a little bubble -->
+    <section id="education">
+      <div class="section-head"><h2>Education</h2></div>
+      <div class="edu-grid">
+        <div class="card edu reveal">
+          <h3>B.A. in Finance and Computer Science</h3>
+          <div class="where">Cornell College · Mount Vernon, IA · May 2027</div>
+          <ul class="edu-points">
+            <li>GPA 3.9</li>
+            <li>Volunteer Income Tax Assistance (VITA) Program</li>
+            <li>President of Cornell Financial Group</li>
+          </ul>
+        </div>
+        <div class="card edu reveal" style="--d:90ms">
+          <h3>Associate in Arts</h3>
+          <div class="where">Elgin Community College · Elgin, IL · Aug 2023 – May 2025</div>
+          <ul class="edu-points">
+            <li>GPA 3.8</li>
+            <li>Phi Theta Kappa</li>
+            <li>Dean's List</li>
+          </ul>
+        </div>
       </div>
     </section>
 
@@ -103,25 +130,8 @@
         <h2>Skills</h2>
         <small class="skill-hint">tap one to see where I've used it</small>
       </div>
-      <!-- data-level = 1 to 5 dots -->
-      <div class="skill-groups">
-        <div class="card skill-group reveal">
-          <h3>Languages</h3>
-          <div class="skill-list">
-            <button class="skill" type="button" data-skill="html" data-level="4">HTML</button>
-            <button class="skill" type="button" data-skill="css" data-level="4">CSS</button>
-            <button class="skill" type="button" data-skill="js" data-level="3">JavaScript</button>
-          </div>
-        </div>
-        <div class="card skill-group reveal" style="--d:90ms">
-          <h3>Tools</h3>
-          <div class="skill-list">
-            <button class="skill" type="button" data-skill="git" data-level="3">Git</button>
-            <button class="skill" type="button" data-skill="github" data-level="3">GitHub</button>
-            <button class="skill" type="button" data-skill="vscode" data-level="4">VS Code</button>
-          </div>
-        </div>
-      </div>
+      <!-- filled in from content/skills.json by js/resume.js -->
+      <div class="skill-groups" id="skillGroups" aria-busy="true"></div>
       <p class="filter-note" id="filterNote" hidden>
         Highlighting where I've used <b id="filterName"></b>
         <button type="button" id="filterClear">Clear ✕</button>
@@ -134,53 +144,36 @@
       <div class="timeline-wrap">
         <span class="t-progress" id="tProgress"></span>
         <ol class="timeline">
-          <li class="t-item now reveal" data-skills="html,css,js,git">
+          <li class="t-item now reveal" data-skills="linux,slurm,proxmox,grafana,truenas,ldap">
             <span class="t-dot"></span>
             <details class="card t-card" open>
               <summary>
-                <div><h3>Job Title<span class="now-pill">Now</span></h3><div class="where">Company Name · City, State</div></div>
-                <span class="date">2025 – Present</span>
+                <div><h3>CC System Administrator<span class="now-pill">Now</span></h3><div class="where">Cornell College · Mount Vernon, IA</div></div>
+                <span class="date">Dec 2025 – Present</span>
                 <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
               </summary>
               <div class="t-body">
                 <ul>
-                  <li>Start with an action verb and say what you did and the result.</li>
-                  <li>Use numbers where you can (e.g. "cut load time by 40%").</li>
-                  <li>Two to four bullets per role is plenty.</li>
+                  <li>Assist in the planning and deployment of a new high-performance compute cluster that supports research projects across the college.</li>
+                  <li>Monitor, maintain, and troubleshoot multiple departmental compute clusters to keep them reliable and up.</li>
                 </ul>
                 <div class="tags"></div>
               </div>
             </details>
           </li>
-          <li class="t-item reveal" data-skills="html,css,github">
+          <li class="t-item reveal" data-skills="sas,python,montecarlo">
             <span class="t-dot"></span>
-            <details class="card t-card">
+            <details class="card t-card" open>
               <summary>
-                <div><h3>Job Title</h3><div class="where">Company Name · City, State</div></div>
-                <span class="date">2024 – 2025</span>
+                <div><h3>Summer Analyst</h3><div class="where">Summit Consulting LLC · Washington, DC</div></div>
+                <span class="date">Jun – Aug 2026</span>
                 <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
               </summary>
               <div class="t-body">
                 <ul>
-                  <li>Something you built, improved, or were responsible for.</li>
-                  <li>Another accomplishment worth bragging about.</li>
-                </ul>
-                <div class="tags"></div>
-              </div>
-            </details>
-          </li>
-          <li class="t-item reveal" data-skills="vscode,js">
-            <span class="t-dot"></span>
-            <details class="card t-card">
-              <summary>
-                <div><h3>Where it all started</h3><div class="where">Self-taught · wherever there was Wi-Fi</div></div>
-                <span class="date">2023</span>
-                <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-              </summary>
-              <div class="t-body">
-                <ul>
-                  <li>Wrote my first lines of code and immediately broke something.</li>
-                  <li>Fixed it. Got hooked.</li>
+                  <li>Coordinated, developed, and implemented an optimization framework and parallel processing system for the reverse mortgage risk model, cutting run time from 13 hours to 5.</li>
+                  <li>Reviewed, curated, and finalized deliverables for the forward and reverse mortgage audit submissions.</li>
+                  <li>Learned the inner workings of the forward and reverse mortgage risk models.</li>
                 </ul>
                 <div class="tags"></div>
               </div>
@@ -190,54 +183,55 @@
       </div>
     </section>
 
-    <!-- Projects -->
+    <!-- Leadership & projects -->
     <section id="projects">
-      <div class="section-head"><h2>Projects</h2><small>stuff I've shipped</small></div>
+      <div class="section-head"><h2>Leadership &amp; projects</h2><small>finance, clubs &amp; community</small></div>
       <div class="proj-grid">
-        <article class="card proj reveal" data-skills="html,css,js,git,github">
+        <article class="card proj reveal" data-skills="dcf,ddm,revenue,pe,dupont,msoffice">
+          <div class="proj-top"><span class="proj-icon" aria-hidden="true">📈</span><span class="year">Nov 2025 – Present</span></div>
+          <h3 data-year="Nov 2025 – Present">CFA Research Challenge</h3>
+          <div class="where">Team Lead · CFA Society Iowa</div>
+          <ul>
+            <li>Perform and coordinate a professional research analysis and valuation of a target company with my teammates.</li>
+            <li>Prepare and write an industry-standard analyst report with multiple theses and a recommendation.</li>
+          </ul>
+          <div class="tags"></div>
+        </article>
+        <article class="card proj reveal" style="--d:90ms" data-skills="dupont,msoffice">
+          <div class="proj-top"><span class="proj-icon" aria-hidden="true">💼</span><span class="year">Aug 2025 – Present</span></div>
+          <h3 data-year="Aug 2025 – Present">Cornell Financial Group</h3>
+          <div class="where">President (Jun 2026 – Present) · Treasurer (Aug 2025 – Jun 2026)</div>
+          <ul>
+            <li>Plan, coordinate, and lead weekly meetings on financial education, professional development, and portfolio management ($190K portfolio).</li>
+            <li>Delegate to and manage a 7-member executive board and a club of about 50 members.</li>
+          </ul>
+          <div class="tags"></div>
+        </article>
+        <article class="card proj reveal" style="--d:180ms">
+          <div class="proj-top"><span class="proj-icon" aria-hidden="true">🏕️</span><span class="year">May 2022 – Dec 2024</span></div>
+          <h3 data-year="May 2022 – Dec 2024">Eagle Scout Service Project</h3>
+          <div class="where">Eagle Scouts · Hampshire, IL</div>
+          <ul>
+            <li>Independently planned, organized, and executed a large-scale community service project.</li>
+            <li>Delegated responsibilities to and coordinated 30+ volunteers, from adults to children.</li>
+          </ul>
+          <div class="tags"></div>
+        </article>
+        <article class="card proj reveal" style="--d:270ms" data-skills="html">
           <div class="proj-top"><span class="proj-icon" aria-hidden="true">🌐</span><span class="year">2026</span></div>
           <h3 data-year="2026">Personal Portfolio</h3>
-          <p>This site: a recursive, data-driven sidebar, custom animations, and this resume.</p>
+          <div class="where">This site</div>
+          <ul>
+            <li>An underwater-themed portfolio with a recursive sidebar, animated ocean, and this interactive resume.</li>
+          </ul>
           <div class="tags"></div>
           <a class="proj-link" href="../">See it live <span>→</span></a>
-        </article>
-        <article class="card proj reveal" style="--d:90ms" data-skills="js">
-          <div class="proj-top"><span class="proj-icon" aria-hidden="true">🎮</span><span class="year">Year</span></div>
-          <h3 data-year="Year">Project blahlglala</h3>
-          <p>One line on what it does and why it's cool.</p>
-          <div class="tags"></div>
-          <a class="proj-link" href="#">Check it out <span>→</span></a>
-        </article>
-        <article class="card proj reveal" style="--d:180ms" data-skills="html,css">
-          <div class="proj-top"><span class="proj-icon" aria-hidden="true">🛠️</span><span class="year">Year</span></div>
-          <h3 data-year="Year">project whatever</h3>
-          <p>yeyretye. (Replace with a real description.)</p>
-          <div class="tags"></div>
-          <a class="proj-link" href="#">Check it out <span>→</span></a>
         </article>
       </div>
     </section>
 
-    <!-- Education + side quests -->
-    <section class="duo">
-      <div>
-        <div class="section-head"><h2>Education</h2></div>
-        <div class="card edu reveal">
-          <h3>Degree or Program</h3>
-          <div class="where">School Name · Expected Year</div>
-          <p>Relevant coursework, GPA, or honors (optional).</p>
-        </div>
-      </div>
-      <div class="quests-wrap">
-        <div class="section-head"><h2>Side quests</h2></div>
-        <div class="quests">
-          <div class="card quest reveal"><span class="q-emoji" aria-hidden="true">📚</span><small>Currently learning</small><strong>Something new</strong></div>
-          <div class="card quest reveal" style="--d:70ms"><span class="q-emoji" aria-hidden="true">☕</span><small>Fueled by</small><strong>Coffee</strong></div>
-          <div class="card quest reveal" style="--d:140ms"><span class="q-emoji" aria-hidden="true">🎧</span><small>Coding soundtrack</small><strong>Lo-fi beats</strong></div>
-          <div class="card quest reveal" style="--d:210ms"><span class="q-emoji" aria-hidden="true">✨</span><small>Fun fact</small><strong>I'm pretty awesome</strong></div>
-        </div>
-      </div>
-    </section>
+    <!-- Additional skills: only in the PDF -->
+    <p class="print-only additional"><b>Languages:</b> Spanish</p>
 
     <!-- CTA -->
     <section class="cta reveal">
@@ -245,7 +239,7 @@
         <h2>Like what you see?</h2>
         <p>I'm open to opportunities. Let's build something cool.</p>
         <div class="row">
-          <button class="btn btn-primary" type="button" data-copy="you@example.com">Copy my email</button>
+          <button class="btn btn-primary" type="button" data-copy="jonathonwaughon@proton.me">Copy my email</button>
           <button class="btn btn-ghost" type="button" data-print>Get the PDF version</button>
         </div>
       </div>

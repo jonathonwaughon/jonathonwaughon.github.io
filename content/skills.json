@@ -1,0 +1,53 @@
+{
+  "groups": [
+    {
+      "name": "Finance & modelling",
+      "skills": [
+        { "id": "sas", "name": "SAS", "level": 4 },
+        { "id": "dcf", "name": "DCF", "level": 4 },
+        { "id": "ddm", "name": "DDM", "level": 4 },
+        { "id": "montecarlo", "name": "Monte Carlo", "level": 4 },
+        { "id": "revenue", "name": "Revenue modelling", "level": 4 },
+        { "id": "pe", "name": "P/E modelling", "level": 4 },
+        { "id": "dupont", "name": "DuPont & Sharpe analysis", "level": 4 }
+      ]
+    },
+    {
+      "name": "Programming",
+      "skills": [
+        { "id": "python", "name": "Python", "level": 4 },
+        { "id": "ollama", "name": "Ollama", "level": 4 },
+        { "id": "lua", "name": "Lua", "level": 4 },
+        { "id": "assembly", "name": "Assembly", "level": 4 },
+        { "id": "html", "name": "HTML", "level": 4 },
+        { "id": "java", "name": "Java", "level": 2 },
+        { "id": "sql", "name": "SQL", "level": 2 },
+        { "id": "php", "name": "PHP", "level": 2 },
+        { "id": "cpp", "name": "C++", "level": 2 },
+        { "id": "latex", "name": "LaTeX", "level": 2 }
+      ]
+    },
+    {
+      "name": "Systems & infrastructure",
+      "skills": [
+        { "id": "linux", "name": "Linux (Ubuntu LTS)", "level": 4 },
+        { "id": "proxmox", "name": "Proxmox", "level": 4 },
+        { "id": "apache", "name": "Apache", "level": 4 },
+        { "id": "ldap", "name": "LDAP", "level": 4 },
+        { "id": "paloalto", "name": "Palo Alto firewall", "level": 4 },
+        { "id": "slurm", "name": "Slurm", "level": 4 },
+        { "id": "grafana", "name": "Grafana", "level": 4 },
+        { "id": "truenas", "name": "TrueNAS + NFS", "level": 4 }
+      ]
+    },
+    {
+      "name": "Workplace tools",
+      "skills": [
+        { "id": "jira", "name": "Jira", "level": 4 },
+        { "id": "msoffice", "name": "Microsoft Office", "level": 4 },
+        { "id": "gworkspace", "name": "Google Workspace", "level": 4 },
+        { "id": "slack", "name": "Slack", "level": 4 }
+      ]
+    }
+  ]
+}

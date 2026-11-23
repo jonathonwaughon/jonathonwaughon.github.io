@@ -33,7 +33,7 @@
     "a", "button", "input", "textarea", "select", "label", "summary", "[role='tab']",
     "p", "h1", "h2", "h3", "h4", "li", "pre", "code", "img", "svg",
     ".card", ".tile", ".code-card", ".avatar-wrap", ".status", ".socials", ".cta",
-    ".sidebar", ".topbar", ".scrim", ".grid", ".fun-fact",
+    ".sidebar", ".topbar", ".scrim", ".grid",
   ].join(",");
 
   const canvas = document.getElementById("ocean");

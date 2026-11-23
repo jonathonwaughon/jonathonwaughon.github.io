@@ -154,6 +154,7 @@ span.chip { cursor: default; }
 .stat span { color: var(--muted); font-size: 13px; }
 
 /* ---------- Skills ---------- */
+.skills-error { color: var(--muted); }
 .skill-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
 .skill-group { padding: 20px; }
 .skill-group h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: 12px; }
@@ -269,25 +270,34 @@ details[open] .t-body { animation: fadeUp .35s var(--ease-out); }
 .proj h3 { font-size: 17px; margin-bottom: 4px; }
 .proj p { color: var(--muted); font-size: 14.5px; }
 .proj .tags { margin-bottom: 14px; }
+.proj .where { font-size: 13.5px; margin-bottom: 8px; }
+.proj ul { padding-left: 18px; color: var(--muted); font-size: 14.5px; margin-bottom: 12px; }
+.proj li { margin-bottom: 4px; }
+.proj li::marker { color: var(--green); }
+.print-only { display: none; }
 .proj-link { margin-top: auto; font-size: 14px; font-weight: 600; }
 .proj-link span { display: inline-block; transition: translate .2s var(--ease-out); }
 .proj:hover .proj-link span { translate: 4px 0; }
 
-/* ---------- Education + side quests ---------- */
-.duo { display: grid; grid-template-columns: 1fr 1.2fr; gap: 16px; align-items: start; }
+/* ---------- Education ---------- */
+.edu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-items: start; }
 .edu { padding: 22px; }
 .edu h3 { font-size: 17px; }
-.edu p { color: var(--muted); font-size: 14.5px; margin-top: 6px; }
-.quests { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.quest {
-  padding: 16px;
-  transition: transform .25s var(--ease-out), border-color .2s;
+/* each point is a little bubble */
+.edu-points { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin-top: 14px; }
+.edu-points li {
+  position: relative;
+  padding: 5px 12px 5px 22px; border-radius: 999px;
+  font-size: 13.5px; line-height: 1.35; color: var(--text);
+  background: radial-gradient(circle at 30% 20%, rgba(186, 230, 253, 0.12), rgba(56, 189, 248, 0.06) 60%);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  transition: transform .2s var(--ease-out), border-color .2s;
 }
-.quest:nth-child(odd):hover  { transform: rotate(-1.5deg) translateY(-3px); border-color: var(--blue); }
-.quest:nth-child(even):hover { transform: rotate(1.5deg) translateY(-3px); border-color: var(--green); }
-.quest .q-emoji { font-size: 22px; }
-.quest small { display: block; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .1em; margin-top: 6px; }
-.quest strong { font-size: 15px; }
+.edu-points li::before { /* tiny bubble shine */
+  content: ""; position: absolute; left: 9px; top: 50%; width: 7px; height: 7px; margin-top: -3.5px;
+  border-radius: 50%; background: var(--green); box-shadow: 0 0 6px rgba(52, 211, 153, 0.6);
+}
+.edu-points li:hover { transform: translateY(-2px); border-color: var(--green); }
 
 /* ---------- CTA ---------- */
 .cta {
@@ -338,7 +348,6 @@ details[open] .t-body { animation: fadeUp .35s var(--ease-out); }
   .avatar { width: 84px; height: 84px; }
   .avatar > * { font-size: 26px; }
   .stat b { font-size: 26px; }
-  .duo { grid-template-columns: 1fr; }
   .t-card summary { flex-wrap: wrap; gap: 4px 12px; }
   .t-card summary > div { flex: 1 1 100%; order: 1; }
   .date { margin-left: 0; order: 2; }
@@ -363,7 +372,7 @@ details[open] .t-body { animation: fadeUp .35s var(--ease-out); }
   }
   html, body { background: #fff; font-size: 12.5px; }
   *, *::before, *::after { animation: none !important; transition: none !important; box-shadow: none !important; }
-  .toolbar, .toast, .filter-note, .skill-hint, .cta, .quests-wrap, .stats, .avatar,
+  .toolbar, .toast, .filter-note, .skill-hint, .cta, .stats, .avatar,
   .status, .chev, .proj-link, .proj-icon, .t-progress, .t-dot, .timeline-wrap::before,
   .intro::before { display: none !important; }
   .reveal, [data-skills] { opacity: 1 !important; translate: none !important; filter: none !important; }
@@ -397,6 +406,24 @@ details[open] .t-body { animation: fadeUp .35s var(--ease-out); }
   .proj h3 { display: inline; font-size: 13.5px; }
   .proj h3::after { content: " · " attr(data-year); color: var(--muted); font-weight: 400; }
   .proj p { display: inline; margin-left: 6px; font-size: 12.5px; }
-  .duo { display: block; }
+  .edu-grid { display: block; }
   .edu { padding: 0; }
+  .edu + .edu { margin-top: 8px; }
+  .edu-points { display: block; margin-top: 2px; }
+  .edu-points li { display: inline; padding: 0; border: 0; background: none; font-size: 12.5px; color: var(--muted); }
+  .edu-points li::before { display: none; }
+  .edu-points li + li::before { display: inline; content: " · "; position: static; width: auto; height: auto; margin: 0; background: none; box-shadow: none; }
+  .proj h3 { display: block; }
+  .proj .where { font-size: 12.5px; margin-bottom: 2px; }
+  .proj ul { font-size: 12.5px; margin-bottom: 0; }
+  .print-only { display: block; }
+  .section-head small { display: none; }
+  /* same section order as the Word resume */
+  .wrap { display: flex; flex-direction: column; }
+  .intro { order: 0; }
+  #education { order: 1; }
+  #experience { order: 2; }
+  #skills { order: 3; }
+  #projects { order: 4; }
+  .additional { order: 5; }
 }
